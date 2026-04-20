@@ -4,10 +4,10 @@ const initialState = {showRoundedRectMode: false};
 const reducer = function (state, action) {
     if (typeof state === 'undefined') state = initialState;
     switch (action.type) {
-        case TOGGLE_ROUNDED_RECT_MODE:
-            return { showRoundedRectMode: action.enabled === true };
-        default:
-            return state;
+    case TOGGLE_ROUNDED_RECT_MODE:
+        return {showRoundedRectMode: action.enabled === true};
+    default:
+        return state;
     }
 };
 

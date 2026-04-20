@@ -74,14 +74,14 @@ class BroadBrushHelper {
         }
         const point = this.lastPoint.add(delta);
 
-        if (this.isSquareBrush) this.squareHandler({ point, delta }, tool, options);
-        else this.roundHandler({ point, delta }, tool, options);
+        if (this.isSquareBrush) this.squareHandler({point, delta}, tool, options);
+        else this.roundHandler({point, delta}, tool, options);
     }
     // square brush
     squareHandler (movement, tool, options) {
         // TODO this can technically handle other shapes, which we should add. However we need to implement some
         // cahce or flush system to make this less laggy when you have a large complex brush drawing (same goes for the segment brush)
-        const { delta, point } = movement;
+        const {point} = movement;
         this.steps++;
 
         const size = options.brushSize / 2;
@@ -92,15 +92,16 @@ class BroadBrushHelper {
 
         square.fillColor = options.fillColor;
         this.lastPoint = point;
-        if (!this.finalPath) this.finalPath = square;
-        else {
+        if (this.finalPath) {
             const merged = this.union(this.finalPath, square);
             this.finalPath = merged;
+        } else {
+            this.finalPath = square;
         }
     }
     // round brush
     roundHandler (movement, tool, options) {
-        const { delta, point } = movement;
+        const {delta, point} = movement;
         this.steps++;
         const step = (delta).normalize(options.brushSize / 2);
 
@@ -305,8 +306,8 @@ class BroadBrushHelper {
             this.finalPath
                 .resolveCrossings()
                 .reorient(true /* nonZero */, true /* clockwise */)
-                .reduce({simplify: true})
-            : this.finalPath;
+                .reduce({simplify: true}) :
+            this.finalPath;
         if (newPath !== this.finalPath) {
             newPath.copyAttributes(this.finalPath);
             newPath.fillColor = this.finalPath.fillColor;

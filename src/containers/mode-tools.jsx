@@ -1,3 +1,4 @@
+/* eslint-disable no-undefined */
 import paper from '@turbowarp/paper';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -17,12 +18,11 @@ import {
     selectAllSegments
 } from '../helper/selection';
 import {HANDLE_RATIO, ensureClockwise} from '../helper/math';
-import {groupItems, ungroupItems} from '../helper/group';
 import {getRaster} from '../helper/layer';
 import {flipBitmapHorizontal, flipBitmapVertical, selectAllBitmap} from '../helper/bitmap';
 import Formats, {isBitmap} from '../lib/format';
 import Modes from '../lib/modes';
-import opentype from 'opentype.js';
+import {load} from 'opentype.js';
 
 class ModeTools extends React.Component {
     constructor (props) {
@@ -204,7 +204,7 @@ class ModeTools extends React.Component {
         const selectedItems = getSelectedLeafItems();
         for (const item of selectedItems) {
             const styles = item.getStyle();
-            console.log(styles.getStrokeCap())
+            console.log(styles.getStrokeCap());
             if (styles.getStrokeCap() === 'round') {
                 styles.setStrokeCap('butt');
                 changed = true;
@@ -295,37 +295,39 @@ class ModeTools extends React.Component {
         utility funcs for 'handleMergeShape'
         convert text nodes to paths to allow merging
     */
-    extractFontURL(fontName) {
+    extractFontURL (fontName) {
         const manager = window.vm ? window.vm.runtime.fontManager : undefined;
         if (!manager) return undefined;
 
         const customCheck = manager.fonts.find(f => !f.system && fontName.includes(f.family));
         if (customCheck) return customCheck.asset.encodeDataURI();
-        else {
-            // could be a default font
-            if (!this._defaultCache) {
-                const defaultFontsCss = document.querySelector(`style[id="scratch-font-styles"]`).sheet;
-                this._defaultCache = {};
-                for (const rule of defaultFontsCss.cssRules) {
-                    if (rule.type === CSSRule.FONT_FACE_RULE) {
-                        const name = rule.style.getPropertyValue("font-family").replace(/["']/g, "").trim();
-                        this._defaultCache[name] = rule.style.getPropertyValue("src")
-                            .replace("url(\"", "").replace("\")", "");
-                    }
+        
+        // could be a default font
+        if (!this._defaultCache) {
+            const defaultFontsCss = document.querySelector(`style[id="scratch-font-styles"]`).sheet;
+            this._defaultCache = {};
+            for (const rule of defaultFontsCss.cssRules) {
+                if (rule.type === CSSRule.FONT_FACE_RULE) {
+                    const name = rule.style.getPropertyValue('font-family').replace(/["']/g, '')
+                        .trim();
+                    this._defaultCache[name] = rule.style.getPropertyValue('src')
+                        .replace('url("', '')
+                        .replace('")', '');
                 }
             }
-
-            if (this._defaultCache[fontName]) return this._defaultCache[fontName];
-            else return undefined;
         }
+
+        if (this._defaultCache[fontName]) return this._defaultCache[fontName];
+        return undefined;
+        
     }
 
     convertText2Path (textNode) {
         const fontURL = this.extractFontURL(textNode.font);
-        return new Promise((resolve) => {
-            opentype.load(fontURL, (err, font) => {
+        return new Promise(resolve => {
+            load(fontURL, (err, font) => {
                 if (err) {
-                    console.warn("Font merge load error:", err);
+                    console.warn('Font merge load error:', err);
                     resolve(undefined);
                     return;
                 }
@@ -336,14 +338,14 @@ class ModeTools extends React.Component {
                 ).toPathData();
 
                 const compound = new paper.CompoundPath(pathData);
-                compound.fillColor = this.fillColor || "black";
+                compound.fillColor = this.fillColor || 'black';
                 compound.matrix = textNode.matrix.clone();
                 resolve(compound);
             });
         });
     }
 
-    async handleMergeShape (event, operation = "unite") {
+    async handleMergeShape (event, operation = 'unite') {
         const selectedItems = getSelectedRootItems();
         if (selectedItems.length < 2) {
             // If nothing or not enough items are selected,
@@ -353,19 +355,19 @@ class ModeTools extends React.Component {
 
         // Convert possible text items to paths
         for (let i = 0; i < selectedItems.length; i++) {
-            if (selectedItems[i].className === "PointText") {
+            if (selectedItems[i].className === 'PointText') {
                 const path = await this.convertText2Path(selectedItems[i]);
                 if (path) selectedItems[i] = path;
             }
         }
 
         let topItem = selectedItems[0];
-        if (topItem.className !== "PointText" && !topItem.unite) {
+        if (topItem.className !== 'PointText' && !topItem.unite) {
             // we cant unite this item, cancel
             return;
         }
 
-        if (typeof operation !== "string") operation = "unite";
+        if (typeof operation !== 'string') operation = 'unite';
 
         // unite the shapes together, creating a clone on top of the original
         let oldTopItem;
@@ -387,13 +389,13 @@ class ModeTools extends React.Component {
     }
 
     handleMaskShape (event) {
-        this.handleMergeShape(event, "intersect");
+        this.handleMergeShape(event, 'intersect');
     }
     handleSubtractShape (event) {
-        this.handleMergeShape(event, "subtract");
+        this.handleMergeShape(event, 'subtract');
     }
     handleExcludeShape (event) {
-        this.handleMergeShape(event, "exclude");
+        this.handleMergeShape(event, 'exclude');
     }
 
     _handleFlip (horizontalScale, verticalScale, selectedItems) {

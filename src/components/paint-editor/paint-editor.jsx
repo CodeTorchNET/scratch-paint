@@ -1,6 +1,6 @@
 import paper from '@turbowarp/paper';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import {defineMessages, injectIntl, intlShape} from 'react-intl';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -394,5 +394,5 @@ const mapStateToProps = state => ({
 });
 
 export default connect(
-    mapStateToProps,
+    mapStateToProps
 )(injectIntl(PaintEditorComponent));

@@ -88,7 +88,7 @@ class BrushTool extends paper.Tool {
         this.lastSize = this.size;
         this.lastColor = this.color;
     }
-    constrainPoint(currentPoint, lastPoint, modifiers) {
+    constrainPoint (currentPoint, lastPoint, modifiers) {
         let delta = currentPoint.subtract(lastPoint);
         if (modifiers.shift) {
             // 45 degree movement

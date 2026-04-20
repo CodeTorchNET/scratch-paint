@@ -9,7 +9,10 @@ import styles from './label.css';
 
 const Label = props => (
     <label className={styles.inputGroup}>
-        <span className={props.secondary ? styles.inputLabelSecondary : styles.inputLabel} style={props.style}>
+        <span
+            className={props.secondary ? styles.inputLabelSecondary : styles.inputLabel}
+            style={props.style}
+        >
             {props.text}
         </span>
         {props.children}
@@ -20,7 +23,7 @@ Label.propTypes = {
     children: PropTypes.node,
     secondary: PropTypes.bool,
     text: PropTypes.string.isRequired,
-    style: PropTypes.object 
+    style: PropTypes.object
 };
 
 Label.defaultProps = {

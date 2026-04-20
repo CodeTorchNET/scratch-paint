@@ -1,36 +1,36 @@
 import paper from '@turbowarp/paper';
 import Modes from '../../lib/modes';
-import { styleShape } from '../style-path';
-import { clearSelection } from '../selection';
-import { getSquareDimensions } from '../math';
+import {styleShape} from '../style-path';
+import {clearSelection} from '../selection';
 import BoundingBoxTool from '../selection-tools/bounding-box-tool';
 import NudgeTool from '../selection-tools/nudge-tool';
 
 const constructArrowPath = (left, lineWidth, lineLength, headWidth, headLength) => {
-    if (typeof lineWidth !== "number") {
+    if (typeof lineWidth !== 'number') {
         lineWidth = 24;
     }
-    if (typeof lineLength !== "number") {
+    if (typeof lineLength !== 'number') {
         lineLength = 60;
     }
-    if (typeof headWidth !== "number") {
+    if (typeof headWidth !== 'number') {
         headWidth = 60;
     }
-    if (typeof headLength !== "number") {
+    if (typeof headLength !== 'number') {
         headLength = 60;
     }
 
     if (left) {
+        // eslint-disable-next-line max-len
         return `M 0 ${lineWidth} H ${0 - lineLength} V ${headWidth} L ${0 - (lineLength + headLength)} 0 L ${0 - lineLength} ${0 - headWidth} V ${0 - lineWidth} H 0 Z`;
     }
     return `M 0 ${0 - lineWidth} H ${lineLength} V ${0 - headWidth} L ${lineLength + headLength} 0 L ${lineLength} ${headWidth} V ${lineWidth} H 0 Z`;
-}
+};
 
 /**
  * Tool for drawing arrows.
  */
 class ArrowTool extends paper.Tool {
-    static get TOLERANCE() {
+    static get TOLERANCE () {
         return 2;
     }
     /**
@@ -39,7 +39,7 @@ class ArrowTool extends paper.Tool {
      * @param {function} setCursor Callback to set the visible mouse cursor
      * @param {!function} onUpdateImage A callback to call when the image visibly changes
      */
-    constructor(setSelectedItems, clearSelectedItems, setCursor, onUpdateImage) {
+    constructor (setSelectedItems, clearSelectedItems, setCursor, onUpdateImage) {
         super();
         this.setSelectedItems = setSelectedItems;
         this.clearSelectedItems = clearSelectedItems;
@@ -80,9 +80,9 @@ class ArrowTool extends paper.Tool {
         this.arrowPathLocked = false;
         this.arrowPathLockedState = {};
         this.arrowPathLockedPositionSet = false;
-        this.arrowPathLockedPosition = { x: 0, y: 0 };
+        this.arrowPathLockedPosition = {x: 0, y: 0};
     }
-    getHitOptions() {
+    getHitOptions () {
         return {
             segments: true,
             stroke: true,
@@ -99,13 +99,13 @@ class ArrowTool extends paper.Tool {
      * Should be called if the selection changes to update the bounds of the bounding box.
      * @param {Array<paper.Item>} selectedItems Array of selected items.
      */
-    onSelectionChanged(selectedItems) {
+    onSelectionChanged (selectedItems) {
         this.boundingBoxTool.onSelectionChanged(selectedItems);
     }
-    setColorState(colorState) {
+    setColorState (colorState) {
         this.colorState = colorState;
     }
-    handleMouseDown(event) {
+    handleMouseDown (event) {
         if (event.event.button > 0) return; // only first mouse button
         this.active = true;
 
@@ -123,7 +123,7 @@ class ArrowTool extends paper.Tool {
         this.arrowPathLocked = false;
         this.arrowPathLockedState = {};
         this.arrowPathLockedPositionSet = false;
-        this.arrowPathLockedPosition = { x: 0, y: 0 };
+        this.arrowPathLockedPosition = {x: 0, y: 0};
 
         if (this.boundingBoxTool.onMouseDown(
             event, false /* clone */, false /* multiselect */, false /* doubleClicked */, this.getHitOptions())) {
@@ -134,23 +134,23 @@ class ArrowTool extends paper.Tool {
         }
     }
 
-    radToDeg(rad) {
+    radToDeg (rad) {
         return rad * 180 / Math.PI;
     }
 
-    calculateDirection(x1, y1, x2, y2) {
+    calculateDirection (x1, y1, x2, y2) {
         const dx = x2 - x1;
         const dy = y2 - y1;
         const direction = 90 - this.radToDeg(Math.atan2(dy, dx));
         return direction;
     }
-    calculateDistance(x1, y1, x2, y2) {
+    calculateDistance (x1, y1, x2, y2) {
         const dx = x2 - x1;
         const dy = y2 - y1;
         return Math.sqrt((dx * dx) + (dy * dy));
     }
 
-    handleMouseDrag(event) {
+    handleMouseDrag (event) {
         if (event.event.button > 0 || !this.active) return; // only first mouse button
 
         if (this.isBoundingBoxMode) {
@@ -179,7 +179,7 @@ class ArrowTool extends paper.Tool {
             this.canModifyState = true;
             this.arrowPathLocked = false;
             this.arrowPathLockedPositionSet = false;
-            this.arrowPathLockedPosition = { x: 0, y: 0 };
+            this.arrowPathLockedPosition = {x: 0, y: 0};
         }
 
         if (this.canModifyState) {
@@ -240,7 +240,7 @@ class ArrowTool extends paper.Tool {
         if ((!this.arrowPathLocked) && this.arrowPathLockedState) {
             this.tri.position = event.downPoint;
 
-            const dimensions = new paper.Point(event.point.getDistance(event.downPoint),0);
+            const dimensions = new paper.Point(event.point.getDistance(event.downPoint), 0);
             this.tri.position = event.downPoint.add(dimensions.multiply(0.5));
         } else if (this.arrowPathLocked) {
             this.tri.position = this.arrowPathLockedState;
@@ -252,13 +252,13 @@ class ArrowTool extends paper.Tool {
 
         this.arrowPathLockedState = {
             x: this.tri.position.x,
-            y: this.tri.position.y,
+            y: this.tri.position.y
         };
         // console.log(this.arrowPathLockedState)
 
         styleShape(this.tri, this.colorState);
     }
-    handleMouseUp(event) {
+    handleMouseUp (event) {
         if (event.event.button > 0 || !this.active) return; // only first mouse button
 
         if (this.isBoundingBoxMode) {
@@ -268,7 +268,7 @@ class ArrowTool extends paper.Tool {
         }
 
         this.arrowPathLockedPositionSet = false;
-        this.arrowPathLockedPosition = { x: 0, y: 0 };
+        this.arrowPathLockedPosition = {x: 0, y: 0};
 
         if (this.tri) {
             if (this.tri.area < ArrowTool.TOLERANCE / paper.view.zoom) {
@@ -284,10 +284,10 @@ class ArrowTool extends paper.Tool {
         }
         this.active = false;
     }
-    handleMouseMove(event) {
+    handleMouseMove (event) {
         this.boundingBoxTool.onMouseMove(event, this.getHitOptions());
     }
-    deactivateTool() {
+    deactivateTool () {
         this.boundingBoxTool.deactivateTool();
     }
 }

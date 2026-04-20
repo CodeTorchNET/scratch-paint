@@ -1,6 +1,8 @@
+/* eslint-disable react/jsx-no-bind */
+/* eslint-disable max-len */
 /* eslint-disable no-case-declarations */
 import classNames from 'classnames';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -8,37 +10,37 @@ import Dropdown from '../dropdown/dropdown.jsx';
 import MediaQuery from 'react-responsive';
 import layout from '../../lib/layout-constants';
 
-import { changeBrushSize, changeSimplifySize, setBrushType } from '../../reducers/brush-mode';
-import { changeBrushSize as changeEraserSize, changeSimplifySize as changeEraserSimplifySize } from '../../reducers/eraser-mode';
-import { changeSimplifySize as changePenSimplifySize } from '../../reducers/pen-mode';
-import { changeRoundedRectCornerSize } from '../../reducers/rounded-rect-mode';
-import { changeRoundedCornerSize } from '../../reducers/rect-mode';
-import { changeTrianglePolyCount, changeTrianglePointCount } from '../../reducers/triangle-mode';
-import { changeCurrentlySelectedShape } from '../../reducers/sussy-mode';
-import { changeBitBrushSize } from '../../reducers/bit-brush-size';
-import { changeBitEraserSize } from '../../reducers/bit-eraser-size';
-import { setShapesFilled } from '../../reducers/fill-bitmap-shapes';
-import { setTextAlignment } from '../../reducers/text-alignment';
+import {changeBrushSize, changeSimplifySize, setBrushType} from '../../reducers/brush-mode';
+import {changeBrushSize as changeEraserSize, changeSimplifySize as changeEraserSimplifySize} from '../../reducers/eraser-mode';
+import {changeSimplifySize as changePenSimplifySize} from '../../reducers/pen-mode';
+import {changeRoundedRectCornerSize} from '../../reducers/rounded-rect-mode';
+import {changeRoundedCornerSize} from '../../reducers/rect-mode';
+import {changeTrianglePolyCount, changeTrianglePointCount} from '../../reducers/triangle-mode';
+import {changeCurrentlySelectedShape} from '../../reducers/sussy-mode';
+import {changeBitBrushSize} from '../../reducers/bit-brush-size';
+import {changeBitEraserSize} from '../../reducers/bit-eraser-size';
+import {setShapesFilled} from '../../reducers/fill-bitmap-shapes';
+import {setTextAlignment} from '../../reducers/text-alignment';
 
 import FontDropdown from '../../containers/font-dropdown.jsx';
 import LiveInputHOC from '../forms/live-input-hoc.jsx';
 import Label from '../forms/label.jsx';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import {defineMessages, injectIntl, intlShape} from 'react-intl';
 import Input from '../forms/input.jsx';
 import InputGroup from '../input-group/input-group.jsx';
 import ButtonGroup from '../button-group/button-group.jsx';
 import Button from '../button/button.jsx';
 import LabeledIconButton from '../labeled-icon-button/labeled-icon-button.jsx';
 import Modes from '../../lib/modes';
-import Formats, { isBitmap, isVector } from '../../lib/format';
-import { hideLabel } from '../../lib/hide-label';
+import Formats, {isBitmap, isVector} from '../../lib/format';
+import {hideLabel} from '../../lib/hide-label';
 import styles from './mode-tools.css';
-import { MAX_STROKE_WIDTH } from '../../reducers/stroke-width';
+import {MAX_STROKE_WIDTH} from '../../reducers/stroke-width';
 import {
     selectableShapes as sussyToolShapes,
     categories as sussyToolCategories,
     generateShapeSVG as generateSussyShapeSVG,
-    categorizeShapes as categorizeSussyShapes,
+    categorizeShapes as categorizeSussyShapes
 } from '../../helper/selectable-shapes.js';
 
 import copyIcon from '!../../tw-recolor/build!./icons/copy.svg';
@@ -251,285 +253,413 @@ const ModeToolsComponent = props => {
     });
 
     switch (props.mode) {
-        case Modes.BRUSH:
+    case Modes.BRUSH:
         /* falls through */
-        case Modes.BIT_BRUSH:
+    case Modes.BIT_BRUSH:
         /* falls through */
-        case Modes.BIT_LINE:
-            {
-                const currentIcon = isVector(props.format) ? brushIcon :
-                    props.mode === Modes.BIT_LINE ? bitLineIcon : bitBrushIcon;
-                const currentBrushValue = isBitmap(props.format) ? props.bitBrushSize : props.brushValue;
-                const currentSimplifyValue = props.simplifyValue;
-                const changeFunction = isBitmap(props.format) ? props.onBitBrushSliderChange : props.onBrushSliderChange;
-                const changeFunctionSimplify = props.onSimplifySliderChange;
-                const currentMessage = props.mode === Modes.BIT_LINE ? messages.thickness : messages.brushSize;
-                const hasSimplifyOption = props.mode === Modes.BRUSH;
-                return (
-                    <div className={classNames(props.className, styles.modeTools)}>
-                        <div>
-                            <img
-                                alt={props.intl.formatMessage(currentMessage)}
-                                title={props.intl.formatMessage(currentMessage)}
-                                className={styles.modeToolsIcon}
-                                draggable={false}
-                                src={currentIcon}
-                            />
-                        </div>
-                        <LiveInput
-                            range
-                            small
-                            max={MAX_STROKE_WIDTH}
-                            min="1"
-                            type="number"
-                            value={currentBrushValue}
-                            onSubmit={changeFunction}
-                        />
+    case Modes.BIT_LINE:
+    {
+        const currentIcon = isVector(props.format) ? brushIcon :
+            props.mode === Modes.BIT_LINE ? bitLineIcon : bitBrushIcon;
+        const currentBrushValue = isBitmap(props.format) ? props.bitBrushSize : props.brushValue;
+        const currentSimplifyValue = props.simplifyValue;
+        const changeFunction = isBitmap(props.format) ? props.onBitBrushSliderChange : props.onBrushSliderChange;
+        const changeFunctionSimplify = props.onSimplifySliderChange;
+        const currentMessage = props.mode === Modes.BIT_LINE ? messages.thickness : messages.brushSize;
+        const hasSimplifyOption = props.mode === Modes.BRUSH;
+        return (
+            <div className={classNames(props.className, styles.modeTools)}>
+                <div>
+                    <img
+                        alt={props.intl.formatMessage(currentMessage)}
+                        title={props.intl.formatMessage(currentMessage)}
+                        className={styles.modeToolsIcon}
+                        draggable={false}
+                        src={currentIcon}
+                    />
+                </div>
+                <LiveInput
+                    range
+                    small
+                    max={MAX_STROKE_WIDTH}
+                    min="1"
+                    type="number"
+                    value={currentBrushValue}
+                    onSubmit={changeFunction}
+                />
                         
-                        {hasSimplifyOption && (
-                            <Label text={props.intl.formatMessage(messages.brushSimplify)} style={{ marginLeft: 'calc(2 * .25rem)' }}>
-                                <LiveInput
-                                    range
-                                    small
-                                    max={1000}
-                                    min="0"
-                                    type="number"
-                                    value={currentSimplifyValue}
-                                    onSubmit={changeFunctionSimplify}
-                                />
-                            </Label>
-                        )}
-
-                        {/* TODO replace this with a dropdown when we add more brush shapes */}
-                        {hasSimplifyOption && (
-                            <InputGroup>
-                                <ButtonGroup>
-                                    <Button
-                                        className={
-                                            classNames(styles.buttonGroupButton)
-                                        }
-                                        onClick={() => props.onBrushChange("CIRCLE")}
-                                    >
-                                        <img
-                                            alt={props.intl.formatMessage(messages.brushCircle)}
-                                            className={styles.buttonGroupButtonIcon}
-                                            draggable={false}
-                                            src={"data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCBmaWxsPSIjMDBjM2ZmIiB3aWR0aD0iMTUiIGhlaWdodD0iMTUiIHJ4PSIxMDAiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDIuNSAyLjUpIi8+PC9zdmc+"}
-                                        />
-                                    </Button>
-                                    <Button
-                                        className={
-                                            classNames(styles.buttonGroupButton)
-                                        }
-                                        onClick={() => props.onBrushChange("SQUARE")}
-                                    >
-                                        <img
-                                            alt={props.intl.formatMessage(messages.brushSquare)}
-                                            className={styles.buttonGroupButtonIcon}
-                                            draggable={false}
-                                            src={"data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCBmaWxsPSIjMDBjM2ZmIiB3aWR0aD0iMTUiIGhlaWdodD0iMTUiIHJ4PSIyIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyLjUgMi41KSIvPjwvc3ZnPg=="}
-                                        />
-                                    </Button>
-                                </ButtonGroup>
-                            </InputGroup>
-                        )}
-                    </div>
-                );
-            }
-        case Modes.BIT_ERASER:
-        /* falls through */
-        case Modes.ERASER:
-            {
-                const currentIcon = isVector(props.format) ? eraserIcon : bitEraserIcon;
-                const currentEraserValue = isBitmap(props.format) ? props.bitEraserSize : props.eraserValue;
-                const currentEraserSimplifyValue = props.eraserSimplifyValue;
-                const changeFunction = isBitmap(props.format) ? props.onBitEraserSliderChange : props.onEraserSliderChange;
-                const changeFunctionSimplify = props.onEraserSimplifySliderChange;
-                const hasSimplifyOption = props.mode === Modes.ERASER;
-                return (
-                    <div className={classNames(props.className, styles.modeTools)}>
-                        <div>
-                            <img
-                                alt={props.intl.formatMessage(messages.eraserSize)}
-                                title={props.intl.formatMessage(messages.eraserSize)}
-                                className={styles.modeToolsIcon}
-                                draggable={false}
-                                src={currentIcon}
-                            />
-                        </div>
-                        <LiveInput
-                            range
-                            small
-                            max={MAX_STROKE_WIDTH}
-                            min="1"
-                            type="number"
-                            value={currentEraserValue}
-                            onSubmit={changeFunction}
-                        />
-
-                        {hasSimplifyOption && (
-                            <Label text={props.intl.formatMessage(messages.eraserSimplify)} style={{ marginLeft: 'calc(2 * .25rem)' }}>
-                                <LiveInput
-                                    range
-                                    small
-                                    max={1000}
-                                    min="0"
-                                    type="number"
-                                    value={currentEraserSimplifyValue}
-                                    onSubmit={changeFunctionSimplify}
-                                />
-                            </Label>
-                        )}
-
-                        {/* TODO replace this with a dropdown when we add more brush shapes */}
-                        {hasSimplifyOption && (
-                            <InputGroup>
-                                <ButtonGroup>
-                                    <Button
-                                        className={
-                                            classNames(styles.buttonGroupButton)
-                                        }
-                                        onClick={() => props.onBrushChange("CIRCLE")}
-                                    >
-                                        <img
-                                            alt={props.intl.formatMessage(messages.brushCircle)}
-                                            className={styles.buttonGroupButtonIcon}
-                                            draggable={false}
-                                            src={"data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCBmaWxsPSIjMDBjM2ZmIiB3aWR0aD0iMTUiIGhlaWdodD0iMTUiIHJ4PSIxMDAiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDIuNSAyLjUpIi8+PC9zdmc+"}
-                                        />
-                                    </Button>
-                                    <Button
-                                        className={
-                                            classNames(styles.buttonGroupButton)
-                                        }
-                                        onClick={() => props.onBrushChange("SQUARE")}
-                                    >
-                                        <img
-                                            alt={props.intl.formatMessage(messages.brushSquare)}
-                                            className={styles.buttonGroupButtonIcon}
-                                            draggable={false}
-                                            src={"data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCBmaWxsPSIjMDBjM2ZmIiB3aWR0aD0iMTUiIGhlaWdodD0iMTUiIHJ4PSIyIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyLjUgMi41KSIvPjwvc3ZnPg=="}
-                                        />
-                                    </Button>
-                                </ButtonGroup>
-                            </InputGroup>
-                        )}
-                    </div>
-                )
-            }
-        case Modes.ROUNDED_RECT:
-        /* falls through */
-        case Modes.RECT:
-            {
-                // NOTE: BIT_RECT doesnt use Path, so this can't be added there the same way as RECT has it.
-                const currentCornerValue = props.mode === Modes.ROUNDED_RECT ? props.roundedRectCornerValue : props.roundedCornerValue;
-                const changeFunction = props.mode === Modes.ROUNDED_RECT ? props.onRoundedRectCornerSliderChange : props.onRoundedCornerSliderChange;
-                return (
-                    <div className={classNames(props.className, styles.modeTools)}>
-                        <div>
-                            <img
-                                alt={props.intl.formatMessage(messages.roundedCornerSize)}
-                                title={props.intl.formatMessage(messages.roundedCornerSize)}
-                                className={styles.modeToolsIcon}
-                                draggable={false}
-                                src={roundedRectIcon}
-                            />
-                        </div>
-                        <LiveInput
-                            range
-                            small
-                            min={0}
-                            max={1000}
-                            type="number"
-                            value={currentCornerValue}
-                            onSubmit={changeFunction}
-                        />
-                    </div>
-                );
-            }
-        case Modes.TRIANGLE:
-            {
-                const currentSideValue = props.trianglePolyValue;
-                const currentPointValue = props.trianglePointValue;
-                const changeFunction = props.onPolyCountSliderChange;
-                const changeFunctionPoint = props.onPointCountSliderChange;
-                return (
-                    <div className={classNames(props.className, styles.modeTools)}>
-                        <div>
-                            <img
-                                alt={props.intl.formatMessage(messages.currentSideCount)}
-                                title={props.intl.formatMessage(messages.currentSideCount)}
-                                className={styles.modeToolsIcon}
-                                draggable={false}
-                                src={triangleIcon}
-                            />
-                        </div>
-                        <LiveInput
-                            range
-                            small
-                            max={1000}
-                            min="3"
-                            type="number"
-                            value={currentSideValue}
-                            onSubmit={changeFunction}
-                        />
-                        <div>
-                            <img
-                                alt={props.intl.formatMessage(messages.spokeRatio)}
-                                title={props.intl.formatMessage(messages.spokeRatio)}
-                                className={styles.modeToolsIcon}
-                                draggable={false}
-                                src={triangleSpikeRatioIcon}
-                            />
-                        </div>
-                        <LiveInput
-                            range
-                            small
-                            max={1000}
-                            min="0" // Spike ratio is limited to 0.01, but setting that here makes the number input arrows work really ugly
-                            step="0.1"
-                            type="number"
-                            value={currentPointValue}
-                            onSubmit={changeFunctionPoint}
-                        />
-                    </div>
-                );
-            }
-        case Modes.SUSSY:
-            {
-                const currentlySelectedShape = props.currentlySelectedShape;
-                const changeFunction = props.onCurrentlySelectedShapeChange;
-                const selectedShapeObject = sussyToolShapes
-                    .filter(shape => shape.id === currentlySelectedShape)[0];
-                const categorizedShapes = categorizeSussyShapes(sussyToolShapes);
-                const selectableShapesList = (
-                    <InputGroup
-                        className={classNames(
-                            styles.modDashedBorder,
-                            styles.dropItemShapeToolMenu,
-                            styles.dropdownMaxItemList
-                        )}
+                {hasSimplifyOption && (
+                    <Label
+                        text={props.intl.formatMessage(messages.brushSimplify)}
+                        style={{marginLeft: 'calc(2 * .25rem)'}}
                     >
-                        {Object.keys(categorizedShapes).map(categoryId => categorizedShapes[categoryId].length === 0 ?
-                            (<React.Fragment key={categoryId} />) : (<React.Fragment key={categoryId}>
-                                <p className={classNames(styles.dropItemShapeToolLabel)}>
-                                    {sussyToolCategories[categoryId]}
-                                </p>
-                                {categorizedShapes[categoryId].map(shape => (
-                                    <LabeledIconButton
-                                        key={shape.id}
-                                        className={classNames(styles.dropItemShapeTool)}
-                                        hideLabel={hideLabel(props.intl.locale)}
-                                        imgSrc={`data:image/svg+xml,${encodeURIComponent(generateSussyShapeSVG(shape))}`}
-                                        title={shape.name}
-                                        onClick={() => changeFunction(shape.id)}
-                                    />
-                                ))}
-                        </React.Fragment>))}
+                        <LiveInput
+                            range
+                            small
+                            max={1000}
+                            min="0"
+                            type="number"
+                            value={currentSimplifyValue}
+                            onSubmit={changeFunctionSimplify}
+                        />
+                    </Label>
+                )}
+
+                {/* TODO replace this with a dropdown when we add more brush shapes */}
+                {hasSimplifyOption && (
+                    <InputGroup>
+                        <ButtonGroup>
+                            <Button
+                                className={
+                                    classNames(styles.buttonGroupButton)
+                                }
+                                onClick={() => props.onBrushChange('CIRCLE')}
+                            >
+                                <img
+                                    alt={props.intl.formatMessage(messages.brushCircle)}
+                                    className={styles.buttonGroupButtonIcon}
+                                    draggable={false}
+                                    src={'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCBmaWxsPSIjMDBjM2ZmIiB3aWR0aD0iMTUiIGhlaWdodD0iMTUiIHJ4PSIxMDAiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDIuNSAyLjUpIi8+PC9zdmc+'}
+                                />
+                            </Button>
+                            <Button
+                                className={
+                                    classNames(styles.buttonGroupButton)
+                                }
+                                onClick={() => props.onBrushChange('SQUARE')}
+                            >
+                                <img
+                                    alt={props.intl.formatMessage(messages.brushSquare)}
+                                    className={styles.buttonGroupButtonIcon}
+                                    draggable={false}
+                                    src={'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCBmaWxsPSIjMDBjM2ZmIiB3aWR0aD0iMTUiIGhlaWdodD0iMTUiIHJ4PSIyIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyLjUgMi41KSIvPjwvc3ZnPg=='}
+                                />
+                            </Button>
+                        </ButtonGroup>
                     </InputGroup>
-                );
-                return (
-                    <div className={classNames(props.className, styles.modeTools)}>
+                )}
+            </div>
+        );
+    }
+    case Modes.BIT_ERASER:
+        /* falls through */
+    case Modes.ERASER:
+    {
+        const currentIcon = isVector(props.format) ? eraserIcon : bitEraserIcon;
+        const currentEraserValue = isBitmap(props.format) ? props.bitEraserSize : props.eraserValue;
+        const currentEraserSimplifyValue = props.eraserSimplifyValue;
+        const changeFunction = isBitmap(props.format) ? props.onBitEraserSliderChange : props.onEraserSliderChange;
+        const changeFunctionSimplify = props.onEraserSimplifySliderChange;
+        const hasSimplifyOption = props.mode === Modes.ERASER;
+        return (
+            <div className={classNames(props.className, styles.modeTools)}>
+                <div>
+                    <img
+                        alt={props.intl.formatMessage(messages.eraserSize)}
+                        title={props.intl.formatMessage(messages.eraserSize)}
+                        className={styles.modeToolsIcon}
+                        draggable={false}
+                        src={currentIcon}
+                    />
+                </div>
+                <LiveInput
+                    range
+                    small
+                    max={MAX_STROKE_WIDTH}
+                    min="1"
+                    type="number"
+                    value={currentEraserValue}
+                    onSubmit={changeFunction}
+                />
+
+                {hasSimplifyOption && (
+                    <Label
+                        text={props.intl.formatMessage(messages.eraserSimplify)}
+                        style={{marginLeft: 'calc(2 * .25rem)'}}
+                    >
+                        <LiveInput
+                            range
+                            small
+                            max={1000}
+                            min="0"
+                            type="number"
+                            value={currentEraserSimplifyValue}
+                            onSubmit={changeFunctionSimplify}
+                        />
+                    </Label>
+                )}
+
+                {/* TODO replace this with a dropdown when we add more brush shapes */}
+                {hasSimplifyOption && (
+                    <InputGroup>
+                        <ButtonGroup>
+                            <Button
+                                className={
+                                    classNames(styles.buttonGroupButton)
+                                }
+                                onClick={() => props.onBrushChange('CIRCLE')}
+                            >
+                                <img
+                                    alt={props.intl.formatMessage(messages.brushCircle)}
+                                    className={styles.buttonGroupButtonIcon}
+                                    draggable={false}
+                                    src={'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCBmaWxsPSIjMDBjM2ZmIiB3aWR0aD0iMTUiIGhlaWdodD0iMTUiIHJ4PSIxMDAiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDIuNSAyLjUpIi8+PC9zdmc+'}
+                                />
+                            </Button>
+                            <Button
+                                className={
+                                    classNames(styles.buttonGroupButton)
+                                }
+                                onClick={() => props.onBrushChange('SQUARE')}
+                            >
+                                <img
+                                    alt={props.intl.formatMessage(messages.brushSquare)}
+                                    className={styles.buttonGroupButtonIcon}
+                                    draggable={false}
+                                    src={'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCBmaWxsPSIjMDBjM2ZmIiB3aWR0aD0iMTUiIGhlaWdodD0iMTUiIHJ4PSIyIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyLjUgMi41KSIvPjwvc3ZnPg=='}
+                                />
+                            </Button>
+                        </ButtonGroup>
+                    </InputGroup>
+                )}
+            </div>
+        );
+    }
+    case Modes.ROUNDED_RECT:
+        /* falls through */
+    case Modes.RECT:
+    {
+        // NOTE: BIT_RECT doesnt use Path, so this can't be added there the same way as RECT has it.
+        const currentCornerValue = props.mode === Modes.ROUNDED_RECT ? props.roundedRectCornerValue : props.roundedCornerValue;
+        const changeFunction = props.mode === Modes.ROUNDED_RECT ? props.onRoundedRectCornerSliderChange : props.onRoundedCornerSliderChange;
+        return (
+            <div className={classNames(props.className, styles.modeTools)}>
+                <div>
+                    <img
+                        alt={props.intl.formatMessage(messages.roundedCornerSize)}
+                        title={props.intl.formatMessage(messages.roundedCornerSize)}
+                        className={styles.modeToolsIcon}
+                        draggable={false}
+                        src={roundedRectIcon}
+                    />
+                </div>
+                <LiveInput
+                    range
+                    small
+                    min={0}
+                    max={1000}
+                    type="number"
+                    value={currentCornerValue}
+                    onSubmit={changeFunction}
+                />
+            </div>
+        );
+    }
+    case Modes.TRIANGLE:
+    {
+        const currentSideValue = props.trianglePolyValue;
+        const currentPointValue = props.trianglePointValue;
+        const changeFunction = props.onPolyCountSliderChange;
+        const changeFunctionPoint = props.onPointCountSliderChange;
+        return (
+            <div className={classNames(props.className, styles.modeTools)}>
+                <div>
+                    <img
+                        alt={props.intl.formatMessage(messages.currentSideCount)}
+                        title={props.intl.formatMessage(messages.currentSideCount)}
+                        className={styles.modeToolsIcon}
+                        draggable={false}
+                        src={triangleIcon}
+                    />
+                </div>
+                <LiveInput
+                    range
+                    small
+                    max={1000}
+                    min="3"
+                    type="number"
+                    value={currentSideValue}
+                    onSubmit={changeFunction}
+                />
+                <div>
+                    <img
+                        alt={props.intl.formatMessage(messages.spokeRatio)}
+                        title={props.intl.formatMessage(messages.spokeRatio)}
+                        className={styles.modeToolsIcon}
+                        draggable={false}
+                        src={triangleSpikeRatioIcon}
+                    />
+                </div>
+                <LiveInput
+                    range
+                    small
+                    max={1000}
+                    min="0" // Spike ratio is limited to 0.01, but setting that here makes the number input arrows work really ugly
+                    step="0.1"
+                    type="number"
+                    value={currentPointValue}
+                    onSubmit={changeFunctionPoint}
+                />
+            </div>
+        );
+    }
+    case Modes.SUSSY:
+    {
+        const currentlySelectedShape = props.currentlySelectedShape;
+        const changeFunction = props.onCurrentlySelectedShapeChange;
+        const selectedShapeObject = sussyToolShapes
+            .filter(shape => shape.id === currentlySelectedShape)[0];
+        const categorizedShapes = categorizeSussyShapes(sussyToolShapes);
+        const selectableShapesList = (
+            <InputGroup
+                className={classNames(
+                    styles.modDashedBorder,
+                    styles.dropItemShapeToolMenu,
+                    styles.dropdownMaxItemList
+                )}
+            >
+                {Object.keys(categorizedShapes).map(categoryId => (categorizedShapes[categoryId].length === 0 ?
+                    (<React.Fragment key={categoryId} />) : (<React.Fragment key={categoryId}>
+                        <p className={classNames(styles.dropItemShapeToolLabel)}>
+                            {sussyToolCategories[categoryId]}
+                        </p>
+                        {categorizedShapes[categoryId].map(shape => (
+                            <LabeledIconButton
+                                key={shape.id}
+                                className={classNames(styles.dropItemShapeTool)}
+                                hideLabel={hideLabel(props.intl.locale)}
+                                imgSrc={`data:image/svg+xml,${encodeURIComponent(generateSussyShapeSVG(shape))}`}
+                                title={shape.name}
+                                onClick={() => changeFunction(shape.id)}
+                            />
+                        ))}
+                    </React.Fragment>)))}
+            </InputGroup>
+        );
+        return (
+            <div className={classNames(props.className, styles.modeTools)}>
+                <Dropdown
+                    className={styles.modUnselect}
+                    enterExitTransitionDurationMs={20}
+                    popoverContent={
+                        <InputGroup
+                            className={styles.modContextMenu}
+                            rtl={props.rtl}
+                        >
+                            {selectableShapesList}
+                        </InputGroup>
+                    }
+                    tipSize={.01}
+                >
+                    <img
+                        src={`data:image/svg+xml,${encodeURIComponent(generateSussyShapeSVG(selectedShapeObject))}`}
+                        alt={selectedShapeObject.name}
+                        title={selectedShapeObject.name}
+                        height={16}
+                    />
+                </Dropdown>
+            </div>
+        );
+    }
+    case Modes.PEN:
+    {
+        const currentPenSimplifyValue = props.penSimplifyValue;
+        const changeFunctionSimplify = props.onPenSimplifySliderChange;
+        return (
+            <div className={classNames(props.className, styles.modeTools)}>
+                <Label
+                    text={props.intl.formatMessage(messages.eraserSimplify)}
+                    style={{marginLeft: 'calc(2 * .25rem)'}}
+                >
+                    <LiveInput
+                        range
+                        small
+                        max={1000}
+                        min="0"
+                        type="number"
+                        value={currentPenSimplifyValue}
+                        onSubmit={changeFunctionSimplify}
+                    />
+                </Label>
+            </div>
+        );
+    }
+    case Modes.RESHAPE:
+        const lineJoinReshape = (
+            <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
+                <LabeledIconButton
+                    disabled={props.hasSelectedMiterLineJoin}
+                    hideLabel={hideLabel(props.intl.locale)}
+                    imgSrc={miterLineJoin}
+                    title={props.intl.formatMessage(messages.joinSpiked)}
+                    onClick={props.onMiterLineJoin}
+                />
+                <LabeledIconButton
+                    disabled={props.hasSelectedRoundLineJoin}
+                    hideLabel={hideLabel(props.intl.locale)}
+                    imgSrc={roundLineJoin}
+                    title={props.intl.formatMessage(messages.joinRounded)}
+                    onClick={props.onRoundLineJoin}
+                />
+                <LabeledIconButton
+                    disabled={props.hasSelectedBevelLineJoin}
+                    hideLabel={hideLabel(props.intl.locale)}
+                    imgSrc={bevelLineJoin}
+                    title={props.intl.formatMessage(messages.joinBeveled)}
+                    onClick={props.onBevelLineJoin}
+                />
+            </InputGroup>
+        );
+        const deleteSelectedNodes = (
+            <InputGroup className={classNames(styles.modLabeledIconHeight)}>
+                <LabeledIconButton
+                    hideLabel={hideLabel(props.intl.locale)}
+                    imgSrc={deleteIcon}
+                    title={props.intl.formatMessage(messages.delete)}
+                    onClick={props.onDelete}
+                />
+            </InputGroup>
+        );
+        return (
+            <div className={classNames(props.className, styles.modeTools)}>
+                <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
+                    <LabeledIconButton
+                        disabled={!props.hasSelectedUncurvedPoints}
+                        hideLabel={hideLabel(props.intl.locale)}
+                        imgSrc={curvedPointIcon}
+                        title={props.intl.formatMessage(messages.curved)}
+                        onClick={props.onCurvePoints}
+                    />
+                    <LabeledIconButton
+                        disabled={!props.hasSelectedUnpointedPoints}
+                        hideLabel={hideLabel(props.intl.locale)}
+                        imgSrc={straightPointIcon}
+                        title={props.intl.formatMessage(messages.pointed)}
+                        onClick={props.onPointPoints}
+                    />
+                </InputGroup>
+                <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
+                    <LabeledIconButton
+                        disabled={props.hasSelectedRoundEnds}
+                        hideLabel={hideLabel(props.intl.locale)}
+                        imgSrc={roundLine}
+                        title={props.intl.formatMessage(messages.endRounded)}
+                        onClick={props.onRoundEnds}
+                    />
+                    <LabeledIconButton
+                        disabled={props.hasSelectedSquareEnds}
+                        hideLabel={hideLabel(props.intl.locale)}
+                        imgSrc={squareLine}
+                        title={props.intl.formatMessage(messages.endSquared)}
+                        onClick={props.onSquareEnds}
+                    />
+                </InputGroup>
+                <MediaQuery minWidth={layout.fullSizeEditorMinWidthExtraToolsCollapsed}>
+                    {lineJoinReshape}
+                    {deleteSelectedNodes}
+                </MediaQuery>
+                <MediaQuery maxWidth={layout.fullSizeEditorMinWidthExtraToolsCollapsed - 1}>
+                    <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
                         <Dropdown
                             className={styles.modUnselect}
                             enterExitTransitionDurationMs={20}
@@ -538,69 +668,99 @@ const ModeToolsComponent = props => {
                                     className={styles.modContextMenu}
                                     rtl={props.rtl}
                                 >
-                                    {selectableShapesList}
+                                    {lineJoinReshape}
+                                    {deleteSelectedNodes}
                                 </InputGroup>
                             }
                             tipSize={.01}
                         >
-                            <img
-                                src={`data:image/svg+xml,${encodeURIComponent(generateSussyShapeSVG(selectedShapeObject))}`}
-                                alt={selectedShapeObject.name}
-                                title={selectedShapeObject.name}
-                                height={16}
-                            />
+                            More
                         </Dropdown>
-                    </div>
-                );
-            }
-        case Modes.PEN:
-            {
-                const currentPenSimplifyValue = props.penSimplifyValue;
-                const changeFunctionSimplify = props.onPenSimplifySliderChange;
-                return (
-                    <div className={classNames(props.className, styles.modeTools)}>
-                        <Label text={props.intl.formatMessage(messages.eraserSimplify)} style={{ marginLeft: 'calc(2 * .25rem)' }}>
-                            <LiveInput
-                                range
-                                small
-                                max={1000}
-                                min="0"
-                                type="number"
-                                value={currentPenSimplifyValue}
-                                onSubmit={changeFunctionSimplify}
-                            />
-                        </Label>
-                    </div>
-                );
-            }
-        case Modes.RESHAPE:
-            const lineJoinReshape = (
+                    </InputGroup>
+                </MediaQuery>
+            </div>
+        );
+    case Modes.BIT_SELECT:
+        /* falls through */
+    case Modes.SELECT:
+        const reshapingMethods = props.format.startsWith('BITMAP') ? null : (
+            <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
+                <LabeledIconButton
+                    hideLabel={hideLabel(props.intl.locale)}
+                    imgSrc={shapeMergeIcon}
+                    title={props.intl.formatMessage(messages.merge)}
+                    onClick={props.onMergeShape}
+                />
+                <LabeledIconButton
+                    hideLabel={hideLabel(props.intl.locale)}
+                    imgSrc={shapeMaskIcon}
+                    title={props.intl.formatMessage(messages.mask)}
+                    onClick={props.onMaskShape}
+                />
+                <LabeledIconButton
+                    hideLabel={hideLabel(props.intl.locale)}
+                    imgSrc={shapeSubtractIcon}
+                    title={props.intl.formatMessage(messages.subtract)}
+                    onClick={props.onSubtractShape}
+                />
+                <LabeledIconButton
+                    hideLabel={hideLabel(props.intl.locale)}
+                    imgSrc={shapeFilterIcon}
+                    title={props.intl.formatMessage(messages.filter)}
+                    onClick={props.onExcludeShape}
+                />
+            </InputGroup>
+        );
+        const flipOptions = (
+            <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
+                <LabeledIconButton
+                    hideLabel={props.intl.locale !== 'en'}
+                    imgSrc={flipHorizontalIcon}
+                    title={props.intl.formatMessage(messages.flipHorizontal)}
+                    onClick={props.onFlipHorizontal}
+                />
+                <LabeledIconButton
+                    hideLabel={props.intl.locale !== 'en'}
+                    imgSrc={flipVerticalIcon}
+                    title={props.intl.formatMessage(messages.flipVertical)}
+                    onClick={props.onFlipVertical}
+                />
+            </InputGroup>
+        );
+        const movementOptions = (
+            <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
+                <LabeledIconButton
+                    hideLabel={props.intl.locale !== 'en'}
+                    imgSrc={centerSelectionIcon}
+                    title={props.intl.formatMessage(messages.movementCenter)}
+                    onClick={props.onCenterSelection}
+                />
+            </InputGroup>
+        );
+        return (
+            <div className={classNames(props.className, styles.modeTools)}>
                 <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
                     <LabeledIconButton
-                        disabled={props.hasSelectedMiterLineJoin}
                         hideLabel={hideLabel(props.intl.locale)}
-                        imgSrc={miterLineJoin}
-                        title={props.intl.formatMessage(messages.joinSpiked)}
-                        onClick={props.onMiterLineJoin}
+                        imgSrc={copyIcon}
+                        title={props.intl.formatMessage(messages.copy)}
+                        onClick={props.onCopyToClipboard}
                     />
                     <LabeledIconButton
-                        disabled={props.hasSelectedRoundLineJoin}
+                        disabled={!(props.clipboardItems.length > 0)}
                         hideLabel={hideLabel(props.intl.locale)}
-                        imgSrc={roundLineJoin}
-                        title={props.intl.formatMessage(messages.joinRounded)}
-                        onClick={props.onRoundLineJoin}
+                        imgSrc={pasteIcon}
+                        title={props.intl.formatMessage(messages.paste)}
+                        onClick={props.onPasteFromClipboard}
                     />
                     <LabeledIconButton
-                        disabled={props.hasSelectedBevelLineJoin}
                         hideLabel={hideLabel(props.intl.locale)}
-                        imgSrc={bevelLineJoin}
-                        title={props.intl.formatMessage(messages.joinBeveled)}
-                        onClick={props.onBevelLineJoin}
+                        imgSrc={cutIcon}
+                        title={props.intl.formatMessage(messages.cut)}
+                        onClick={props.onCutToClipboard}
                     />
                 </InputGroup>
-            );
-            const deleteSelectedNodes = (
-                <InputGroup className={classNames(styles.modLabeledIconHeight)}>
+                <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
                     <LabeledIconButton
                         hideLabel={hideLabel(props.intl.locale)}
                         imgSrc={deleteIcon}
@@ -608,301 +768,152 @@ const ModeToolsComponent = props => {
                         onClick={props.onDelete}
                     />
                 </InputGroup>
-            );
-            return (
-                <div className={classNames(props.className, styles.modeTools)}>
+                <MediaQuery minWidth={layout.fullSizeEditorMinWidthExtraToolsCollapsed}>
+                    {/* Flip Options */}
+                    {flipOptions}
+                    {/* Movement Options */}
+                    {movementOptions}
+                    {/* Reshaping Methods */}
+                    {(props.mode === Modes.SELECT) ? (
+                        <MediaQuery minWidth={layout.fullSizeEditorMinWidthExtraTools}>
+                            {reshapingMethods}
+                        </MediaQuery>
+                    ) : null}
+                    {(props.mode === Modes.SELECT) ? (
+                        <MediaQuery maxWidth={layout.fullSizeEditorMinWidthExtraTools - 1}>
+                            <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
+                                <Dropdown
+                                    className={styles.modUnselect}
+                                    enterExitTransitionDurationMs={20}
+                                    popoverContent={
+                                        <InputGroup
+                                            className={styles.modContextMenu}
+                                            rtl={props.rtl}
+                                        >
+                                            {reshapingMethods}
+                                        </InputGroup>
+                                    }
+                                    tipSize={.01}
+                                >
+                                    More
+                                </Dropdown>
+                            </InputGroup>
+                        </MediaQuery>
+                    ) : null}
+                </MediaQuery>
+                <MediaQuery maxWidth={layout.fullSizeEditorMinWidthExtraToolsCollapsed - 1}>
                     <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
-                        <LabeledIconButton
-                            disabled={!props.hasSelectedUncurvedPoints}
-                            hideLabel={hideLabel(props.intl.locale)}
-                            imgSrc={curvedPointIcon}
-                            title={props.intl.formatMessage(messages.curved)}
-                            onClick={props.onCurvePoints}
-                        />
-                        <LabeledIconButton
-                            disabled={!props.hasSelectedUnpointedPoints}
-                            hideLabel={hideLabel(props.intl.locale)}
-                            imgSrc={straightPointIcon}
-                            title={props.intl.formatMessage(messages.pointed)}
-                            onClick={props.onPointPoints}
-                        />
-                    </InputGroup>
-                    <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
-                        <LabeledIconButton
-                            disabled={props.hasSelectedRoundEnds}
-                            hideLabel={hideLabel(props.intl.locale)}
-                            imgSrc={roundLine}
-                            title={props.intl.formatMessage(messages.endRounded)}
-                            onClick={props.onRoundEnds}
-                        />
-                        <LabeledIconButton
-                            disabled={props.hasSelectedSquareEnds}
-                            hideLabel={hideLabel(props.intl.locale)}
-                            imgSrc={squareLine}
-                            title={props.intl.formatMessage(messages.endSquared)}
-                            onClick={props.onSquareEnds}
-                        />
-                    </InputGroup>
-                    <MediaQuery minWidth={layout.fullSizeEditorMinWidthExtraToolsCollapsed}>
-                        {lineJoinReshape}
-                        {deleteSelectedNodes}
-                    </MediaQuery>
-                    <MediaQuery maxWidth={layout.fullSizeEditorMinWidthExtraToolsCollapsed - 1}>
-                        <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
-                            <Dropdown
-                                className={styles.modUnselect}
-                                enterExitTransitionDurationMs={20}
-                                popoverContent={
-                                    <InputGroup
-                                        className={styles.modContextMenu}
-                                        rtl={props.rtl}
-                                    >
-                                        {lineJoinReshape}
-                                        {deleteSelectedNodes}
-                                    </InputGroup>
-                                }
-                                tipSize={.01}
-                            >
-                                More
-                            </Dropdown>
-                        </InputGroup>
-                    </MediaQuery>
-                </div>
-            );
-        case Modes.BIT_SELECT:
-        /* falls through */
-        case Modes.SELECT:
-            const reshapingMethods = props.format.startsWith("BITMAP") ? null : (
-                <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
-                    <LabeledIconButton
-                        hideLabel={hideLabel(props.intl.locale)}
-                        imgSrc={shapeMergeIcon}
-                        title={props.intl.formatMessage(messages.merge)}
-                        onClick={props.onMergeShape}
-                    />
-                    <LabeledIconButton
-                        hideLabel={hideLabel(props.intl.locale)}
-                        imgSrc={shapeMaskIcon}
-                        title={props.intl.formatMessage(messages.mask)}
-                        onClick={props.onMaskShape}
-                    />
-                    <LabeledIconButton
-                        hideLabel={hideLabel(props.intl.locale)}
-                        imgSrc={shapeSubtractIcon}
-                        title={props.intl.formatMessage(messages.subtract)}
-                        onClick={props.onSubtractShape}
-                    />
-                    <LabeledIconButton
-                        hideLabel={hideLabel(props.intl.locale)}
-                        imgSrc={shapeFilterIcon}
-                        title={props.intl.formatMessage(messages.filter)}
-                        onClick={props.onExcludeShape}
-                    />
-                </InputGroup>
-            );
-            const flipOptions = (
-                <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
-                    <LabeledIconButton
-                        hideLabel={props.intl.locale !== 'en'}
-                        imgSrc={flipHorizontalIcon}
-                        title={props.intl.formatMessage(messages.flipHorizontal)}
-                        onClick={props.onFlipHorizontal}
-                    />
-                    <LabeledIconButton
-                        hideLabel={props.intl.locale !== 'en'}
-                        imgSrc={flipVerticalIcon}
-                        title={props.intl.formatMessage(messages.flipVertical)}
-                        onClick={props.onFlipVertical}
-                    />
-                </InputGroup>
-            );
-            const movementOptions = (
-                <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
-                    <LabeledIconButton
-                        hideLabel={props.intl.locale !== 'en'}
-                        imgSrc={centerSelectionIcon}
-                        title={props.intl.formatMessage(messages.movementCenter)}
-                        onClick={props.onCenterSelection}
-                    />
-                </InputGroup>
-            );
-            return (
-                <div className={classNames(props.className, styles.modeTools)}>
-                    <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
-                        <LabeledIconButton
-                            hideLabel={hideLabel(props.intl.locale)}
-                            imgSrc={copyIcon}
-                            title={props.intl.formatMessage(messages.copy)}
-                            onClick={props.onCopyToClipboard}
-                        />
-                        <LabeledIconButton
-                            disabled={!(props.clipboardItems.length > 0)}
-                            hideLabel={hideLabel(props.intl.locale)}
-                            imgSrc={pasteIcon}
-                            title={props.intl.formatMessage(messages.paste)}
-                            onClick={props.onPasteFromClipboard}
-                        />
-                        <LabeledIconButton
-                            hideLabel={hideLabel(props.intl.locale)}
-                            imgSrc={cutIcon}
-                            title={props.intl.formatMessage(messages.cut)}
-                            onClick={props.onCutToClipboard}
-                        />
-                    </InputGroup>
-                    <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
-                        <LabeledIconButton
-                            hideLabel={hideLabel(props.intl.locale)}
-                            imgSrc={deleteIcon}
-                            title={props.intl.formatMessage(messages.delete)}
-                            onClick={props.onDelete}
-                        />
-                    </InputGroup>
-                    <MediaQuery minWidth={layout.fullSizeEditorMinWidthExtraToolsCollapsed}>
-                        {/* Flip Options */}
-                        {flipOptions}
-                        {/* Movement Options */}
-                        {movementOptions}
-                        {/* Reshaping Methods */}
-                        {(props.mode === Modes.SELECT) ? (
-                            <MediaQuery minWidth={layout.fullSizeEditorMinWidthExtraTools}>
-                                {reshapingMethods}
-                            </MediaQuery>
-                        ) : null}
-                        {(props.mode === Modes.SELECT) ? (
-                            <MediaQuery maxWidth={layout.fullSizeEditorMinWidthExtraTools - 1}>
-                                <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
-                                    <Dropdown
-                                        className={styles.modUnselect}
-                                        enterExitTransitionDurationMs={20}
-                                        popoverContent={
-                                            <InputGroup
-                                                className={styles.modContextMenu}
-                                                rtl={props.rtl}
-                                            >
-                                                {reshapingMethods}
-                                            </InputGroup>
-                                        }
-                                        tipSize={.01}
-                                    >
-                                        More
-                                    </Dropdown>
+                        <Dropdown
+                            className={styles.modUnselect}
+                            enterExitTransitionDurationMs={20}
+                            popoverContent={
+                                <InputGroup
+                                    className={styles.modContextMenu}
+                                    rtl={props.rtl}
+                                >
+                                    {flipOptions}
+                                    {movementOptions}
+                                    {reshapingMethods}
                                 </InputGroup>
-                            </MediaQuery>
-                        ) : null}
-                    </MediaQuery>
-                    <MediaQuery maxWidth={layout.fullSizeEditorMinWidthExtraToolsCollapsed - 1}>
-                        <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
-                            <Dropdown
-                                className={styles.modUnselect}
-                                enterExitTransitionDurationMs={20}
-                                popoverContent={
-                                    <InputGroup
-                                        className={styles.modContextMenu}
-                                        rtl={props.rtl}
-                                    >
-                                        {flipOptions}
-                                        {movementOptions}
-                                        {reshapingMethods}
-                                    </InputGroup>
-                                }
-                                tipSize={.01}
-                            >
-                                More
-                            </Dropdown>
-                        </InputGroup>
-                    </MediaQuery>
-                </div>
-            );
-        case Modes.BIT_TEXT:
-        /* falls through */
-        case Modes.TEXT:
-            return (
-                <div className={classNames(props.className, styles.modeTools)}>
-                    <InputGroup className={classNames(styles.modDashedBorder)}>
-                        <FontDropdown
-                            onUpdateImage={props.onUpdateImage}
-                            onManageFonts={props.onManageFonts}
-                        />
+                            }
+                            tipSize={.01}
+                        >
+                            More
+                        </Dropdown>
                     </InputGroup>
-                    <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
-                        <LabeledIconButton
-                            hideLabel
-                            imgSrc={alignLeftIcon}
-                            title={props.intl.formatMessage(messages.leftAlign)}
-                            onClick={props.onTextAlignLeft}
-                        />
-                        <LabeledIconButton
-                            hideLabel
-                            imgSrc={alignCenterIcon}
-                            title={props.intl.formatMessage(messages.centerAlign)}
-                            onClick={props.onTextAlignCenter}
-                        />
-                        <LabeledIconButton
-                            hideLabel
-                            imgSrc={alignRightIcon}
-                            title={props.intl.formatMessage(messages.rightAlign)}
-                            onClick={props.onTextAlignRight}
-                        />
-                    </InputGroup>
-                </div>
-            );
-        case Modes.BIT_RECT:
+                </MediaQuery>
+            </div>
+        );
+    case Modes.BIT_TEXT:
         /* falls through */
-        case Modes.BIT_OVAL:
-            {
-                const fillIcon = props.mode === Modes.BIT_RECT ? bitRectIcon : bitOvalIcon;
-                const outlineIcon = props.mode === Modes.BIT_RECT ? bitRectOutlinedIcon : bitOvalOutlinedIcon;
-                return (
-                    <div className={classNames(props.className, styles.modeTools)}>
-                        <InputGroup>
-                            <LabeledIconButton
-                                highlighted={props.fillBitmapShapes}
-                                imgSrc={fillIcon}
-                                title={props.intl.formatMessage(messages.filled)}
-                                onClick={props.onFillShapes}
+    case Modes.TEXT:
+        return (
+            <div className={classNames(props.className, styles.modeTools)}>
+                <InputGroup className={classNames(styles.modDashedBorder)}>
+                    <FontDropdown
+                        onUpdateImage={props.onUpdateImage}
+                        onManageFonts={props.onManageFonts}
+                    />
+                </InputGroup>
+                <InputGroup className={classNames(styles.modDashedBorder, styles.modLabeledIconHeight)}>
+                    <LabeledIconButton
+                        hideLabel
+                        imgSrc={alignLeftIcon}
+                        title={props.intl.formatMessage(messages.leftAlign)}
+                        onClick={props.onTextAlignLeft}
+                    />
+                    <LabeledIconButton
+                        hideLabel
+                        imgSrc={alignCenterIcon}
+                        title={props.intl.formatMessage(messages.centerAlign)}
+                        onClick={props.onTextAlignCenter}
+                    />
+                    <LabeledIconButton
+                        hideLabel
+                        imgSrc={alignRightIcon}
+                        title={props.intl.formatMessage(messages.rightAlign)}
+                        onClick={props.onTextAlignRight}
+                    />
+                </InputGroup>
+            </div>
+        );
+    case Modes.BIT_RECT:
+        /* falls through */
+    case Modes.BIT_OVAL:
+    {
+        const fillIcon = props.mode === Modes.BIT_RECT ? bitRectIcon : bitOvalIcon;
+        const outlineIcon = props.mode === Modes.BIT_RECT ? bitRectOutlinedIcon : bitOvalOutlinedIcon;
+        return (
+            <div className={classNames(props.className, styles.modeTools)}>
+                <InputGroup>
+                    <LabeledIconButton
+                        highlighted={props.fillBitmapShapes}
+                        imgSrc={fillIcon}
+                        title={props.intl.formatMessage(messages.filled)}
+                        onClick={props.onFillShapes}
                         gray
-                            />
-                        </InputGroup>
-                        <InputGroup>
-                            <LabeledIconButton
-                                highlighted={!props.fillBitmapShapes}
-                                imgSrc={outlineIcon}
-                                title={props.intl.formatMessage(messages.outlined)}
-                                onClick={props.onOutlineShapes}
+                    />
+                </InputGroup>
+                <InputGroup>
+                    <LabeledIconButton
+                        highlighted={!props.fillBitmapShapes}
+                        imgSrc={outlineIcon}
+                        title={props.intl.formatMessage(messages.outlined)}
+                        onClick={props.onOutlineShapes}
                         gray
+                    />
+                </InputGroup>
+                {props.fillBitmapShapes ? null : (
+                    <InputGroup>
+                        <Label text={props.intl.formatMessage(messages.thickness)}>
+                            <LiveInput
+                                range
+                                small
+                                max={MAX_STROKE_WIDTH}
+                                min="1"
+                                type="number"
+                                value={props.bitBrushSize}
+                                onSubmit={props.onBitBrushSliderChange}
                             />
-                        </InputGroup>
-                        {props.fillBitmapShapes ? null : (
-                            <InputGroup>
-                                <Label text={props.intl.formatMessage(messages.thickness)}>
-                                    <LiveInput
-                                        range
-                                        small
-                                        max={MAX_STROKE_WIDTH}
-                                        min="1"
-                                        type="number"
-                                        value={props.bitBrushSize}
-                                        onSubmit={props.onBitBrushSliderChange}
-                                    />
-                                </Label>
-                            </InputGroup>)
-                        }
-                    </div>
-                );
-            }
-        case Modes.ARROW:
-            {
-                return (
-                    <div className={classNames(props.className, styles.modeTools)}>
-                        <span>{`Hold Alt + Shift to resize arrow tip`}</span>
-                    </div>
-                );
-            }
-        default:
-            // Leave empty for now, if mode not supported
-            return (
-                <div className={classNames(props.className, styles.modeTools)} />
-            );
+                        </Label>
+                    </InputGroup>)
+                }
+            </div>
+        );
+    }
+    case Modes.ARROW:
+    {
+        return (
+            <div className={classNames(props.className, styles.modeTools)}>
+                <span>{`Hold Alt + Shift to resize arrow tip`}</span>
+            </div>
+        );
+    }
+    default:
+        // Leave empty for now, if mode not supported
+        return (
+            <div className={classNames(props.className, styles.modeTools)} />
+        );
     }
 };
 
@@ -915,7 +926,6 @@ ModeToolsComponent.propTypes = {
     clipboardItems: PropTypes.arrayOf(PropTypes.array),
     eraserValue: PropTypes.number,
     eraserSimplifyValue: PropTypes.number,
-    brushType: PropTypes.string,
     penSimplifyValue: PropTypes.number,
     roundedCornerValue: PropTypes.number,
     roundedRectCornerValue: PropTypes.number,
@@ -926,12 +936,18 @@ ModeToolsComponent.propTypes = {
     format: PropTypes.oneOf(Object.keys(Formats)),
     hasSelectedUncurvedPoints: PropTypes.bool,
     hasSelectedUnpointedPoints: PropTypes.bool,
+    hasSelectedMiterLineJoin: PropTypes.bool,
+    hasSelectedRoundLineJoin: PropTypes.bool,
+    hasSelectedBevelLineJoin: PropTypes.bool,
+    hasSelectedRoundEnds: PropTypes.bool,
+    hasSelectedSquareEnds: PropTypes.bool,
     intl: intlShape.isRequired,
     mode: PropTypes.string.isRequired,
     onBitBrushSliderChange: PropTypes.func.isRequired,
     onBitEraserSliderChange: PropTypes.func.isRequired,
     onBrushSliderChange: PropTypes.func.isRequired,
     onSimplifySliderChange: PropTypes.func.isRequired,
+    onCurrentlySelectedShapeChange: PropTypes.func,
     onCopyToClipboard: PropTypes.func.isRequired,
     onCutToClipboard: PropTypes.func.isRequired,
     onCurvePoints: PropTypes.func.isRequired,
@@ -940,6 +956,10 @@ ModeToolsComponent.propTypes = {
     onBrushChange: PropTypes.func,
     onEraserSimplifySliderChange: PropTypes.func,
     onPenSimplifySliderChange: PropTypes.func,
+    onRoundedRectCornerSliderChange: PropTypes.func,
+    onRoundedCornerSliderChange: PropTypes.func,
+    onPolyCountSliderChange: PropTypes.func,
+    onPointCountSliderChange: PropTypes.func,
     onFillShapes: PropTypes.func.isRequired,
     onFlipHorizontal: PropTypes.func.isRequired,
     onFlipVertical: PropTypes.func.isRequired,
@@ -949,6 +969,15 @@ ModeToolsComponent.propTypes = {
     onPasteFromClipboard: PropTypes.func.isRequired,
     onPointPoints: PropTypes.func.isRequired,
     onUpdateImage: PropTypes.func.isRequired,
+    onMiterLineJoin: PropTypes.func,
+    onRoundLineJoin: PropTypes.func,
+    onBevelLineJoin: PropTypes.func,
+    onRoundEnds: PropTypes.func,
+    onSquareEnds: PropTypes.func,
+    onTextAlignLeft: PropTypes.func,
+    onTextAlignCenter: PropTypes.func,
+    onTextAlignRight: PropTypes.func,
+    rtl: PropTypes.bool,
 
     onMergeShape: PropTypes.func.isRequired,
     onMaskShape: PropTypes.func.isRequired,
@@ -1022,14 +1051,14 @@ const mapDispatchToProps = dispatch => ({
         dispatch(setShapesFilled(false));
     },
     onTextAlignLeft: () => {
-        dispatch(setTextAlignment("left"));
+        dispatch(setTextAlignment('left'));
     },
     onTextAlignRight: () => {
-        dispatch(setTextAlignment("right"));
+        dispatch(setTextAlignment('right'));
     },
     onTextAlignCenter: () => {
-        dispatch(setTextAlignment("center"));
-    },
+        dispatch(setTextAlignment('center'));
+    }
 });
 
 export default connect(

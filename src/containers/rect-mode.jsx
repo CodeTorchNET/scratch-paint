@@ -62,7 +62,7 @@ class RectMode extends React.Component {
         clearSelection(this.props.clearSelectedItems);
         this.validateColorState();
 
-        if (typeof this.props.roundedCornerSize !== "number") {
+        if (typeof this.props.roundedCornerSize !== 'number') {
             this.props.onChangeRoundedCornerSize(0);
         }
 
@@ -154,14 +154,14 @@ RectMode.propTypes = {
     setCursor: PropTypes.func.isRequired,
     setSelectedItems: PropTypes.func.isRequired,
     roundedCornerSize: PropTypes.number.isRequired,
-    onChangeRoundedCornerSize: PropTypes.func.isRequired,
+    onChangeRoundedCornerSize: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
     colorState: state.scratchPaint.color,
     isRectModeActive: state.scratchPaint.mode === Modes.RECT,
     selectedItems: state.scratchPaint.selectedItems,
-    roundedCornerSize: state.scratchPaint.rectMode.roundedCornerSize,
+    roundedCornerSize: state.scratchPaint.rectMode.roundedCornerSize
 });
 const mapDispatchToProps = dispatch => ({
     clearSelectedItems: () => {

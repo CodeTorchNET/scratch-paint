@@ -1,26 +1,26 @@
 import paper from '@turbowarp/paper';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import bindAll from 'lodash.bindall';
 import Modes from '../lib/modes';
-import { MIXED } from '../helper/style-path';
+import {MIXED} from '../helper/style-path';
 import ColorStyleProptype from '../lib/color-style-proptype';
 import GradientTypes from '../lib/gradient-types';
 
-import { changeFillColor, clearFillGradient, DEFAULT_COLOR } from '../reducers/fill-style';
-import { changeStrokeColor, clearStrokeGradient } from '../reducers/stroke-style';
-import { changeMode } from '../reducers/modes';
-import { clearSelectedItems, setSelectedItems } from '../reducers/selected-items';
-import { setCursor } from '../reducers/cursor';
-import { changeTrianglePolyCount, changeTrianglePointCount } from '../reducers/triangle-mode';
+import {changeFillColor, clearFillGradient, DEFAULT_COLOR} from '../reducers/fill-style';
+import {changeStrokeColor, clearStrokeGradient} from '../reducers/stroke-style';
+import {changeMode} from '../reducers/modes';
+import {clearSelectedItems, setSelectedItems} from '../reducers/selected-items';
+import {setCursor} from '../reducers/cursor';
+import {changeTrianglePolyCount, changeTrianglePointCount} from '../reducers/triangle-mode';
 
-import { clearSelection, getSelectedLeafItems } from '../helper/selection';
+import {clearSelection, getSelectedLeafItems} from '../helper/selection';
 import TriangleTool from '../helper/tools/triangle-tool';
 import TriangleModeComponent from '../components/triangle-mode/triangle-mode.jsx';
 
 class TriangleMode extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         bindAll(this, [
             'activateTool',
@@ -28,12 +28,12 @@ class TriangleMode extends React.Component {
             'validateColorState'
         ]);
     }
-    componentDidMount() {
+    componentDidMount () {
         if (this.props.isTriangleModeActive) {
             this.activateTool(this.props);
         }
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         if (this.tool && nextProps.colorState !== this.props.colorState) {
             this.tool.setColorState(nextProps.colorState);
         }
@@ -53,22 +53,22 @@ class TriangleMode extends React.Component {
             this.deactivateTool();
         }
     }
-    shouldComponentUpdate(nextProps) {
+    shouldComponentUpdate (nextProps) {
         return nextProps.isTriangleModeActive !== this.props.isTriangleModeActive;
     }
-    componentWillUnmount() {
+    componentWillUnmount () {
         if (this.tool) {
             this.deactivateTool();
         }
     }
-    activateTool() {
+    activateTool () {
         clearSelection(this.props.clearSelectedItems);
         this.validateColorState();
 
-        if (typeof this.props.sideCount !== "number") {
+        if (typeof this.props.sideCount !== 'number') {
             this.props.onSetSideCount(3);
         }
-        if (typeof this.props.pointCount !== "number") {
+        if (typeof this.props.pointCount !== 'number') {
             this.props.onSetPointCount(1);
         }
 
@@ -83,11 +83,11 @@ class TriangleMode extends React.Component {
         this.tool.setColorState(this.props.colorState);
         this.tool.activate();
     }
-    validateColorState() { // TODO move to shared class
+    validateColorState () { // TODO move to shared class
         // Make sure that at least one of fill/stroke is set, and that MIXED is not one of the colors.
         // If fill and stroke color are both missing, set fill to default and stroke to transparent.
         // If exactly one of fill or stroke color is set, set the other one to transparent.
-        const { strokeWidth } = this.props.colorState;
+        const {strokeWidth} = this.props.colorState;
         const fillColor1 = this.props.colorState.fillColor.primary;
         let fillColor2 = this.props.colorState.fillColor.secondary;
         let fillGradient = this.props.colorState.fillColor.gradientType;
@@ -128,12 +128,12 @@ class TriangleMode extends React.Component {
             this.props.clearStrokeGradient();
         }
     }
-    deactivateTool() {
+    deactivateTool () {
         this.tool.deactivateTool();
         this.tool.remove();
         this.tool = null;
     }
-    render() {
+    render () {
         return (
             <TriangleModeComponent
                 isSelected={this.props.isTriangleModeActive}
@@ -163,7 +163,7 @@ TriangleMode.propTypes = {
     sideCount: PropTypes.number.isRequired,
     pointCount: PropTypes.number.isRequired,
     onSetSideCount: PropTypes.func.isRequired,
-    onSetPointCount: PropTypes.func.isRequired,
+    onSetPointCount: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
@@ -171,7 +171,7 @@ const mapStateToProps = state => ({
     isTriangleModeActive: state.scratchPaint.mode === Modes.TRIANGLE,
     selectedItems: state.scratchPaint.selectedItems,
     sideCount: state.scratchPaint.triangleMode.trianglePolyCount,
-    pointCount: state.scratchPaint.triangleMode.trianglePointCount,
+    pointCount: state.scratchPaint.triangleMode.trianglePointCount
 });
 const mapDispatchToProps = dispatch => ({
     clearSelectedItems: () => {

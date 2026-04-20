@@ -1,25 +1,25 @@
 import paper from '@turbowarp/paper';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import bindAll from 'lodash.bindall';
 import Modes from '../lib/modes';
-import { MIXED } from '../helper/style-path';
+import {MIXED} from '../helper/style-path';
 import ColorStyleProptype from '../lib/color-style-proptype';
 import GradientTypes from '../lib/gradient-types';
 
-import { changeFillColor, clearFillGradient, DEFAULT_COLOR } from '../reducers/fill-style';
-import { changeStrokeColor, clearStrokeGradient } from '../reducers/stroke-style';
-import { changeMode } from '../reducers/modes';
-import { clearSelectedItems, setSelectedItems } from '../reducers/selected-items';
-import { setCursor } from '../reducers/cursor';
+import {changeFillColor, clearFillGradient, DEFAULT_COLOR} from '../reducers/fill-style';
+import {changeStrokeColor, clearStrokeGradient} from '../reducers/stroke-style';
+import {changeMode} from '../reducers/modes';
+import {clearSelectedItems, setSelectedItems} from '../reducers/selected-items';
+import {setCursor} from '../reducers/cursor';
 
-import { clearSelection, getSelectedLeafItems } from '../helper/selection';
+import {clearSelection, getSelectedLeafItems} from '../helper/selection';
 import ArrowTool from '../helper/tools/arrow-tool';
 import ArrowModeComponent from '../components/arrow-mode/arrow-mode.jsx';
 
 class ArrowMode extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         bindAll(this, [
             'activateTool',
@@ -27,12 +27,12 @@ class ArrowMode extends React.Component {
             'validateColorState'
         ]);
     }
-    componentDidMount() {
+    componentDidMount () {
         if (this.props.isArrowModeActive) {
             this.activateTool(this.props);
         }
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         if (this.tool && nextProps.colorState !== this.props.colorState) {
             this.tool.setColorState(nextProps.colorState);
         }
@@ -46,15 +46,15 @@ class ArrowMode extends React.Component {
             this.deactivateTool();
         }
     }
-    shouldComponentUpdate(nextProps) {
+    shouldComponentUpdate (nextProps) {
         return nextProps.isArrowModeActive !== this.props.isArrowModeActive;
     }
-    componentWillUnmount() {
+    componentWillUnmount () {
         if (this.tool) {
             this.deactivateTool();
         }
     }
-    activateTool() {
+    activateTool () {
         clearSelection(this.props.clearSelectedItems);
         this.validateColorState();
 
@@ -67,11 +67,11 @@ class ArrowMode extends React.Component {
         this.tool.setColorState(this.props.colorState);
         this.tool.activate();
     }
-    validateColorState() { // TODO move to shared class
+    validateColorState () { // TODO move to shared class
         // Make sure that at least one of fill/stroke is set, and that MIXED is not one of the colors.
         // If fill and stroke color are both missing, set fill to default and stroke to transparent.
         // If exactly one of fill or stroke color is set, set the other one to transparent.
-        const { strokeWidth } = this.props.colorState;
+        const {strokeWidth} = this.props.colorState;
         const fillColor1 = this.props.colorState.fillColor.primary;
         let fillColor2 = this.props.colorState.fillColor.secondary;
         let fillGradient = this.props.colorState.fillColor.gradientType;
@@ -112,12 +112,12 @@ class ArrowMode extends React.Component {
             this.props.clearStrokeGradient();
         }
     }
-    deactivateTool() {
+    deactivateTool () {
         this.tool.deactivateTool();
         this.tool.remove();
         this.tool = null;
     }
-    render() {
+    render () {
         return (
             <ArrowModeComponent
                 isSelected={this.props.isArrowModeActive}

@@ -1,6 +1,7 @@
 import {HANDLE_RATIO, snapDeltaToAngle} from '../math';
 import {getActionBounds} from '../view';
 import {clearSelection, getSelectedLeafItems, getSelectedSegments} from '../selection';
+import paper from '@turbowarp/paper';
 
 /** Subtool of ReshapeTool for moving control points. */
 class PointTool {

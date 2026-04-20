@@ -23,7 +23,7 @@ const createMaskingCanvas = (originalContext, fillStyle) => {
     }
     if (doesColorRequireMask(fillStyle)) {
         const tempCanvas = createCanvas(originalCanvas.width, originalCanvas.height);
-        const tempContext = tempCanvas.getContext('2d', { willReadFrequently: true });
+        const tempContext = tempCanvas.getContext('2d', {willReadFrequently: true});
         return {
             context: tempContext,
             unmask: () => {
@@ -242,7 +242,7 @@ const getBrushMark = function (size, color, isEraser) {
     const roundedUpRadius = Math.ceil(size / 2);
     canvas.width = roundedUpRadius * 2;
     canvas.height = roundedUpRadius * 2;
-    const {context, unmask} = createMaskingCanvas(canvas.getContext('2d', { willReadFrequently: true }), isEraser ? 'white' : color);
+    const {context, unmask} = createMaskingCanvas(canvas.getContext('2d', {willReadFrequently: true}), isEraser ? 'white' : color);
     context.imageSmoothingEnabled = false;
     // Small squares for pixel artists
     if (size <= 5) {
@@ -444,7 +444,7 @@ const getTrimmedRaster = function (shouldInsert) {
  * @param {uint8array} uint8 uint8array
  * @returns {string} base64 data
  */
-const uint8ToBase64 = function(uint8) {
+const uint8ToBase64 = function (uint8) {
     let binary = '';
     const chunkSize = 0x8000;
     for (let i = 0; i < uint8.length; i += chunkSize) {
@@ -452,13 +452,15 @@ const uint8ToBase64 = function(uint8) {
         binary += String.fromCharCode.apply(null, chunk);
     }
     return btoa(binary);
-}
+};
 
 /**
  * @returns {string} css for directions to custom fonts, used by <style> in 'convertToBitmap'
  */
-const generateCustomFontsCSS = function() {
+const generateCustomFontsCSS = function () {
+    // eslint-disable-next-line no-undef
     if (!ReduxStore) return '';
+    // eslint-disable-next-line no-undef
     const fonts = ReduxStore.getState().scratchPaint.customFonts.filter(f => !f.system);
 
     let fontCSS = '';
@@ -470,11 +472,11 @@ const generateCustomFontsCSS = function() {
         if (format === 'otf') format = 'opentype';
         if (format === 'ttf') format = 'truetype';
 
-        fontCSS += "@font-face {\n";
+        fontCSS += '@font-face {\n';
         fontCSS += `font-family: "${font.name}";\n`;
         fontCSS += `src: url('data:font/${format};base64,${base64}') format('${format}');\n`;
         fontCSS += `font-display: block;\n`;
-        fontCSS += "}\n";
+        fontCSS += '}\n';
     }
 
     return fontCSS;
@@ -654,7 +656,7 @@ const fillStyleToColor_ = function (fillStyleString) {
     const tmpCanvas = document.createElement('canvas');
     tmpCanvas.width = 1;
     tmpCanvas.height = 1;
-    const context = tmpCanvas.getContext('2d', { willReadFrequently: true });
+    const context = tmpCanvas.getContext('2d', {willReadFrequently: true});
     context.fillStyle = fillStyleString;
     context.fillRect(0, 0, 1, 1);
     return context.getImageData(0, 0, 1, 1).data;

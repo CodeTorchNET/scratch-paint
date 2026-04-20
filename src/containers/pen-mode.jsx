@@ -63,7 +63,7 @@ class PenMode extends React.Component {
         if (!this.props.colorState.strokeWidth) {
             this.props.onChangeStrokeWidth(1);
         }
-        if (typeof this.props.simplifySize !== "number") {
+        if (typeof this.props.simplifySize !== 'number') {
             this.props.onChangeSimplifySize(2);
         }
         this.tool = new PenTool(

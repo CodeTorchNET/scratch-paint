@@ -20,7 +20,9 @@ module.exports = {
         // TW: ignore errors importing things from custom webpack loaders
         'import/no-unresolved': ['error', {
             ignore: ['^!']
-        }]
+        }],
+
+        'max-len': ['error', {code: 150}]
     },
     settings: {
         react: {

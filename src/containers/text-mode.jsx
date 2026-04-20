@@ -101,7 +101,7 @@ class TextMode extends React.Component {
             this.props.changeFont(Fonts.SANS_SERIF);
         }
         if (!nextProps.alignment) {
-            this.props.changeAlignment("left");
+            this.props.changeAlignment('left');
         }
 
         this.tool = new TextTool(
@@ -163,7 +163,6 @@ TextMode.propTypes = {
     onChangeFillColor: PropTypes.func.isRequired,
     onChangeStrokeColor: PropTypes.func.isRequired,
     onUpdateImage: PropTypes.func.isRequired,
-    rtl: PropTypes.bool,
     selectedItems: PropTypes.arrayOf(PropTypes.instanceOf(paper.Item)),
     setCursor: PropTypes.func.isRequired,
     setSelectedItems: PropTypes.func.isRequired,

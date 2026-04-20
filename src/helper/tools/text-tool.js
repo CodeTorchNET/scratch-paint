@@ -315,7 +315,7 @@ class TextTool extends paper.Tool {
         if (this.mode === TextTool.TEXT_EDIT_MODE) {
             this.textBox.content = this.element.value;
         }
-        if (this.alignment !== "left") this.calculateMatrix(paper.view.matrix);
+        if (this.alignment !== 'left') this.calculateMatrix(paper.view.matrix);
         this.resizeGuide();
     }
     resizeGuide () {
@@ -325,17 +325,17 @@ class TextTool extends paper.Tool {
         // Prevent line from wrapping
         this.element.style.width = `${this.textBox.internalBounds.width + 1}px`;
         this.element.style.height = `${this.textBox.internalBounds.height}px`;
-        this.element.style.textAlign = "left";
+        this.element.style.textAlign = 'left';
 
         // The transform origin needs to be updated in RTL because this.textBox.internalBounds.x
         // changes as you type
-        if (this.alignment === "right") {
-            this.element.style.textAlign = "right";
+        if (this.alignment === 'right') {
+            this.element.style.textAlign = 'right';
             this.element.style.transformOrigin =
                 `${-this.textBox.internalBounds.x}px ${-this.textBox.internalBounds.y}px`;
         }
-        if (this.alignment === "center") {  
-            this.element.style.textAlign = "center";
+        if (this.alignment === 'center') {
+            this.element.style.textAlign = 'center';
             this.element.style.transformOrigin = `center ${-this.textBox.internalBounds.y}px`;
         }
     }

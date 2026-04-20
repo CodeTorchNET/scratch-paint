@@ -64,12 +64,12 @@ class SegmentBrushHelper {
         }
         const point = this.lastPoint.add(delta);
 
-        if (this.isSquareBrush) this.squareHandler({ point, delta }, tool, options);
-        else this.roundHandler({ point, delta }, tool, options);
+        if (this.isSquareBrush) this.squareHandler({point, delta}, tool, options);
+        else this.roundHandler({point, delta}, tool, options);
     }
     // square brush
     squareHandler (movement, tool, options) {
-        const { delta, point } = movement;
+        const {point} = movement;
 
         const size = options.brushSize / 2;
         const square = new paper.Path.Rectangle(new paper.Rectangle(
@@ -79,17 +79,18 @@ class SegmentBrushHelper {
 
         square.fillColor = options.fillColor;
         this.lastPoint = point;
-        if (!this.finalPath) this.finalPath = square;
-        else {
+        if (this.finalPath) {
             const merged = this.finalPath.unite(square);
             this.finalPath.remove();
             square.remove();
             this.finalPath = merged;
+        } else {
+            this.finalPath = square;
         }
     }
     // round brush
-    roundHandler(movement, tool, options) {
-        const { delta, point } = movement;
+    roundHandler (movement, tool, options) {
+        const {delta, point} = movement;
 
         const step = (delta).normalize(options.brushSize / 2);
         const handleVec = step.clone();
@@ -124,7 +125,7 @@ class SegmentBrushHelper {
         this.finalPath = newPath;
     }
 
-    onSegmentMouseUp(event, tool, options) {
+    onSegmentMouseUp (event, tool, options) {
         if (event.event.button > 0) return; // only first mouse button
 
         // TODO: This smoothing tends to cut off large portions of the path! Would like to eventually
