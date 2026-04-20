@@ -6,6 +6,23 @@ import {MIXED} from '../../src/helper/style-path';
 import GradientTypes from '../../src/lib/gradient-types';
 import {mockPaperRootItem} from '../__mocks__/paperMocks';
 
+// this is probably gonna bite us in the future but tbh it doesn't really matter rn
+jest.mock('@turbowarp/paper', () => ({
+    Color: class {
+        constructor (c) {
+            this.c = c;
+        }
+        toCSS () {
+            return this.c;
+        }
+        equals (other) {
+            return other && this.c === other.c;
+        }
+    },
+    CompoundPath: class {},
+    Matrix: class {}
+}));
+
 for (const [colorReducer, changeColor, colorProp] of [
     [fillColorReducer, changeFillColor, 'fillColor'],
     [strokeColorReducer, changeStrokeColor, 'strokeColor']

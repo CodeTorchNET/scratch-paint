@@ -1,3 +1,4 @@
+/* eslint-disable no-undefined */
 /* eslint-env jest */
 import brushReducer, {changeBrushSize} from '../../src/reducers/brush-mode';
 import eraserReducer, {changeBrushSize as changeEraserSize} from '../../src/reducers/eraser-mode';
@@ -14,19 +15,21 @@ test('initialState', () => {
 
 test('changeBrushSize', () => {
     let defaultState;
-    
     const newBrushSize = 8078;
     const initialSimplifySize = 10;
+    const initialBrushType = 'CIRCLE';
 
-    expect(brushReducer(defaultState /* state */, changeBrushSize(newBrushSize) /* action */))
-        .toEqual({brushSize: newBrushSize, simplifySize: initialSimplifySize});
-    expect(brushReducer(1 /* state */, changeBrushSize(newBrushSize) /* action */))
-        .toEqual({brushSize: newBrushSize});
+    expect(brushReducer(defaultState, changeBrushSize(newBrushSize)))
+        .toEqual({brushSize: newBrushSize, simplifySize: initialSimplifySize, brushType: initialBrushType});
+    
+    expect(brushReducer(1, changeBrushSize(newBrushSize)))
+        .toEqual({brushSize: newBrushSize, simplifySize: undefined, brushType: undefined});
 
-    expect(eraserReducer(defaultState /* state */, changeEraserSize(newBrushSize) /* action */))
+    expect(eraserReducer(defaultState, changeEraserSize(newBrushSize)))
         .toEqual({brushSize: newBrushSize, simplifySize: initialSimplifySize});
-    expect(eraserReducer(1 /* state */, changeEraserSize(newBrushSize) /* action */))
-        .toEqual({brushSize: newBrushSize});
+        
+    expect(eraserReducer(1, changeEraserSize(newBrushSize)))
+        .toEqual({brushSize: newBrushSize, simplifySize: undefined});
 });
 
 test('invalidChangeBrushSize', () => {
