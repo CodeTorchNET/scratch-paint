@@ -1,0 +1,158 @@
+@import '../css/colors.css';
+@import '../css/units.css';
+
+.popover-content {
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem;
+    background: $popover-background;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    max-height: 450px;
+    overflow-y: auto;
+    width: 250px;
+    color: $text-primary;
+    user-select: none;
+}
+
+.section {
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.section-header {
+    font-weight: bold;
+    font-size: 0.65rem;
+    color: $text-primary;
+    opacity: 0.6;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.grid-2x2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.input-prefix {
+    position: absolute;
+    left: 8px;
+    font-size: 0.65rem;
+    font-weight: bold;
+    color: $text-primary;
+    opacity: 0.45;
+    pointer-events: none;
+    z-index: 5;
+    text-transform: uppercase;
+}
+
+.compact-input, .dash-compact-input {
+    width: 100% !important;
+    height: 1.85rem !important;
+    padding-left: 1.75rem !important;
+    padding-right: 0.25rem !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    border-radius: 4px !important;
+    border: 1px solid $form-border !important;
+    background-color: $input-background !important;
+    color: $text-primary !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+}
+
+.dash-compact-input {
+    padding-left: 2.6rem !important;
+}
+
+.compact-input:hover,
+.dash-compact-input:hover {
+    border-color: $looks-secondary !important;
+}
+
+.compact-input:focus,
+.dash-compact-input:focus {
+    border-color: $looks-secondary !important;
+    box-shadow: 0 0 0 2px $looks-transparent !important;
+}
+
+.full-width-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.select-label {
+    position: absolute;
+    left: 8px;
+    font-size: 0.65rem;
+    font-weight: bold;
+    color: $text-primary;
+    opacity: 0.45;
+    pointer-events: none;
+    z-index: 5;
+    text-transform: uppercase;
+}
+
+.select-input, .blend-select-input {
+    width: 100% !important;
+    height: 1.85rem !important;
+    padding-left: 2.25rem !important;
+    padding-right: 1.25rem !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    border-radius: 4px !important;
+    border: 1px solid $form-border !important;
+    background-color: $input-background !important;
+    color: $text-primary !important;
+    appearance: none !important;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23575e75%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-7.4H18.4c-5%200-10%202.4-13%206.5a18.6%2018.6%200%200%200-3.3%2015.4c1%205.7%203.4%2010.5%207.6%2014.2L132.8%20221c3.8%204%208.5%206%2013.6%206a19.2%2019.2%200%200%200%2013.7-5.8l123-123.5c4-3.8%206.3-8.6%207.2-14.2a18.4%2018.4%200%200%200-3.3-14.1z%22%2F%3E%3C%2Fsvg%3E') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 8px center !important;
+    background-size: 8px auto !important;
+    cursor: pointer !important;
+    outline: none !important;
+    transition: 0.2s ease !important;
+    box-sizing: border-box !important;
+}
+
+.blend-select-input{
+    padding-left: 3.0rem !important;
+}
+
+.select-input:hover,
+.blend-select-input:hover {
+    border-color: $looks-secondary !important;
+}
+
+.select-input:focus,
+.blend-select-input:focus {
+    border-color: $looks-secondary !important;
+    box-shadow: 0 0 0 2px $looks-transparent !important;
+}
+
+.mod-unselect {
+    user-select: none;
+}

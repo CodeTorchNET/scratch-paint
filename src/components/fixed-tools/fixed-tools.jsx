@@ -17,6 +17,7 @@ import Input from '../forms/input.jsx';
 import InputGroup from '../input-group/input-group.jsx';
 import Label from '../forms/label.jsx';
 import LabeledIconButton from '../labeled-icon-button/labeled-icon-button.jsx';
+import TransformTools from '../../containers/transform-tools.jsx';
 import layout from '../../lib/layout-constants';
 import {hideLabel} from '../../lib/hide-label';
 import styles from './fixed-tools.css';
@@ -82,6 +83,11 @@ const messages = defineMessages({
         defaultMessage: 'More',
         description: 'Label for dropdown to access more action buttons',
         id: 'paint.paintEditor.more'
+    },
+    properties: {
+        defaultMessage: 'Properties',
+        description: 'Label for the button to open shape properties',
+        id: 'paint.paintEditor.properties'
     }
 });
 
@@ -176,6 +182,11 @@ const FixedToolsComponent = props => {
                         imgSrc={ungroupIcon}
                         title={props.intl.formatMessage(messages.ungroup)}
                         onClick={props.onUngroup}
+                    />
+                    <TransformTools
+                        onUpdateImage={props.onUpdateImage}
+                        hideLabel={hideLabel(props.intl.locale)}
+                        title={props.intl.formatMessage(messages.properties)}
                     />
                 </InputGroup> : null
             }
@@ -309,6 +320,7 @@ FixedToolsComponent.propTypes = {
     onSendToFront: PropTypes.func.isRequired,
     onUndo: PropTypes.func.isRequired,
     onUngroup: PropTypes.func.isRequired,
+    onUpdateImage: PropTypes.func.isRequired,
     onUpdateName: PropTypes.func.isRequired,
     rtl: PropTypes.bool.isRequired,
     width: PropTypes.number
