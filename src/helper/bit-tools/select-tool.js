@@ -3,6 +3,7 @@ import Modes from '../../lib/modes';
 
 import {getRaster} from '../layer';
 import {commitSelectionToBitmap} from '../bitmap';
+import {describeStamp} from '../bit-float';
 
 import BoundingBoxTool from '../selection-tools/bounding-box-tool';
 import NudgeTool from '../selection-tools/nudge-tool';
@@ -124,7 +125,8 @@ class SelectTool extends paper.Tool {
         if (event.event.button > 0 || !this.active) return; // only first mouse button
 
         if (this.selectionBoxMode) {
-            this.selectionBoxTool.onMouseUpBitmap(event);
+            const lifted = this.selectionBoxTool.onMouseUpBitmap(event);
+            if (lifted) this.onUpdateImage(true);
         } else {
             this.boundingBoxTool.onMouseUp(event);
         }
@@ -134,10 +136,11 @@ class SelectTool extends paper.Tool {
     commitSelection () {
         if (!this.selection || !this.selection.parent) return;
 
+        const stamp = describeStamp(this.selection);
         commitSelectionToBitmap(this.selection, getRaster());
         this.selection.remove();
         this.selection = null;
-        this.onUpdateImage();
+        this.onUpdateImage(false, null, stamp);
     }
     deactivateTool () {
         this.commitSelection();

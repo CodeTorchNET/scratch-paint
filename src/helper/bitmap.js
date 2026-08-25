@@ -419,7 +419,11 @@ const getHitBounds = function (raster, rect) {
 const trim_ = function (raster) {
     const hitBounds = getHitBounds(raster);
     if (hitBounds.width && hitBounds.height) {
-        return raster.getSubRaster(getHitBounds(raster));
+        const trimmed = raster.getSubRaster(hitBounds);
+        trimmed.data = Object.assign({}, trimmed.data, {
+            liftRect: [hitBounds.x, hitBounds.y, hitBounds.width, hitBounds.height]
+        });
+        return trimmed;
     }
     return null;
 };
@@ -1031,6 +1035,50 @@ const commitRectToBitmap = function (rect, bitmap) {
     bitmap.drawImage(tmpCanvas, new paper.Point());
 };
 
+/**
+ * Draw a raster into another one without changing it.
+ *
+ * @param {paper.Raster} item the raster to draw
+ * @param {paper.Raster} destination the raster to draw it into
+ */
+const drawRasterInto = function (item, destination) {
+    if (!item.matrix.isInvertible()) return;
+    commitArbitraryTransformation_(item, destination);
+};
+
+/**
+ * Draw whatever is floating above the picture into a raster.
+ *
+ * @param {paper.Item} item the floating item
+ * @param {paper.Raster} bitmap the raster to draw into
+ * @returns {boolean} whether the item was something this knows how to draw
+ */
+const commitItemToBitmap = function (item, bitmap) {
+    if (item instanceof paper.Raster) {
+        commitSelectionToBitmap(item, bitmap);
+        return true;
+    }
+    if (item instanceof paper.Shape && item.type === 'rectangle') {
+        commitRectToBitmap(item, bitmap);
+        return true;
+    }
+    if (item instanceof paper.Shape && item.type === 'ellipse') {
+        commitOvalToBitmap(item, bitmap);
+        return true;
+    }
+    if (item instanceof paper.PointText) {
+        // @todo get crisp text https://github.com/LLK/scratch-paint/issues/508
+        const bounds = item.drawnBounds;
+        const textRaster = item.rasterize(72, false /* insert */, bounds);
+        bitmap.drawImage(
+            textRaster.canvas,
+            new paper.Point(Math.floor(textRaster.bounds.x), Math.floor(textRaster.bounds.y))
+        );
+        return true;
+    }
+    return false;
+};
+
 const selectAllBitmap = function (clearSelectedItems) {
     clearSelection(clearSelectedItems);
 
@@ -1047,7 +1095,9 @@ const selectAllBitmap = function (clearSelectedItems) {
 export {
     doesColorRequireMask,
     createMaskingCanvas,
+    commitItemToBitmap,
     commitSelectionToBitmap,
+    drawRasterInto,
     commitOvalToBitmap,
     commitRectToBitmap,
     convertToBitmap,

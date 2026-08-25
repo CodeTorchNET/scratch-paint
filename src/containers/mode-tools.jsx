@@ -476,6 +476,8 @@ class ModeTools extends React.Component {
         if (!this.props.selectedItems.length) {
             if (isBitmap(this.props.format)) {
                 selectAllBitmap(this.props.clearSelectedItems);
+                // Selecting everything empties the raster into a floating copy, which is a change to the picture even though nothing looks different.
+                this.props.onUpdateImage(true /* skipSnapshot */);
             } else if (this.props.mode === Modes.RESHAPE) {
                 selectAllSegments();
             } else {

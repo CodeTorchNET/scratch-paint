@@ -43,8 +43,14 @@ class SelectionBoxTool {
             this.setSelectedItems();
         }
     }
+    /**
+     * @param {!object} event the mouse event
+     * @returns {boolean} true if pixels were lifted out of the raster, which a collaborator has to
+     *   be told about
+     */
     onMouseUpBitmap (event) {
-        if (event.event.button > 0) return; // only first mouse button
+        if (event.event.button > 0) return false; // only first mouse button
+        let lifted = false;
         if (this.selectionRect) {
             let rect = new paper.Rectangle({
                 from: new paper.Point(
@@ -67,18 +73,24 @@ class SelectionBoxTool {
                 // Gather a bit of extra data so that we can avoid aliasing at edges
                 const expanded = getRaster().getSubRaster(rect.expand(4));
                 expanded.remove();
-                raster.data = {expanded: expanded};
+
+                raster.data = {
+                    expanded: expanded,
+                    liftRect: [rect.x, rect.y, rect.width, rect.height]
+                };
 
                 // Clear area from raster layer
                 const context = getRaster().getContext(true /* modify */);
                 context.clearRect(rect.x, rect.y, rect.width, rect.height);
                 this.setSelectedItems();
+                lifted = true;
             }
 
             // Remove dotted rectangle
             this.selectionRect.remove();
             this.selectionRect = null;
         }
+        return lifted;
     }
 }
 

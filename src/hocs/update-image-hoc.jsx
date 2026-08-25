@@ -12,7 +12,7 @@ import {updateViewBounds} from '../reducers/view-bounds';
 
 import {getSelectedLeafItems} from '../helper/selection';
 import {getRaster, hideGuideLayers, showGuideLayers} from '../helper/layer';
-import {commitRectToBitmap, commitOvalToBitmap, commitSelectionToBitmap, getHitBounds} from '../helper/bitmap';
+import {commitItemToBitmap, drawRasterInto, getHitBounds} from '../helper/bitmap';
 import {performSnapshot} from '../helper/undo';
 import {scaleWithStrokes} from '../helper/math';
 
@@ -24,6 +24,21 @@ import {
 import Modes, {BitmapModes} from '../lib/modes';
 import Formats, {isBitmap, isVector} from '../lib/format';
 import {isImportingImage} from '../lib/tw-is-importing-image';
+import {decompose} from '../helper/collab-art';
+import {shapeReportingEnabled, setBitmapReplayer, setBitmapRefresher} from '../helper/collab-live';
+import {applyBitmapOp, remoteFloats} from '../helper/bit-replay';
+import {describeCut, describeFloat, resetFloatState} from '../helper/bit-float';
+
+const describeShapes = svg => {
+    if (!shapeReportingEnabled()) return null;
+    const layer = paper.project.layers.find(candidate => candidate.data && candidate.data.isPaintingLayer);
+    if (!layer) return null;
+    const items = layer.children.filter(item =>
+        !(typeof item.isClipMask === 'function' && item.isClipMask()));
+    const parts = decompose(svg, items.map(item => (item.data && item.data.collabId) || null));
+    if (!parts) return null;
+    return {view: parts.view, shapes: parts.shapes, items};
+};
 
 const UpdateImageHOC = function (WrappedComponent) {
     class UpdateImageWrapper extends React.Component {
@@ -32,8 +47,79 @@ const UpdateImageHOC = function (WrappedComponent) {
             bindAll(this, [
                 'handleUpdateImage',
                 'handleUpdateBitmap',
-                'handleUpdateVector'
+                'handleUpdateVector',
+                'handleReplayBitmap',
+                'finishReplay'
             ]);
+            this.replaying = false;
+            this.publishedImage = null;
+        }
+        componentDidMount () {
+            setBitmapReplayer(this.handleReplayBitmap);
+            setBitmapRefresher(this.finishReplay);
+        }
+        componentDidUpdate (previous) {
+            if (previous.imageId !== this.props.imageId) {
+                this.publishedImage = null;
+                resetFloatState();
+            }
+        }
+        componentWillUnmount () {
+            setBitmapReplayer(null);
+            setBitmapRefresher(null);
+            resetFloatState();
+        }
+        /**
+         * Perform a bitmap action from another editor, and commit what it produced.
+         *
+         * @param {object} op the action to perform
+         * @returns {boolean} whether it was one we could replay
+         */
+        handleReplayBitmap (op) {
+            const performed = applyBitmapOp(op);
+            if (performed && typeof performed.then === 'function') {
+                return performed.then(landed => landed && this.finishReplay());
+            }
+            if (!performed) return false;
+            return this.finishReplay();
+        }
+        /**
+         * Hand the result of a replayed action to the VM.
+         *
+         * @returns {boolean} always true, so that it can be the tail of `handleReplayBitmap`
+         */
+        finishReplay () {
+            this.replaying = true;
+            try {
+                this.handleUpdateImage(true, Formats.BITMAP);
+            } finally {
+                this.replaying = false;
+            }
+            return true;
+        }
+        /**
+         * What to tell the room about the bitmap edit that just happened.
+         *
+         * @param {?object} op the action the tool named, if it could name one
+         * @param {paper.Item[]} selectedItems what is floating above the picture
+         * @returns {?object} an action to publish, or null when there is nothing to say
+         */
+        describeBitmapEdit (op, selectedItems) {
+            if (!shapeReportingEnabled() || this.replaying) return null;
+            if (op && op.deletedItem) {
+                const cut = describeCut(op.deletedItem);
+                if (cut) return cut;
+                return null;
+            }
+            if (op) return op;
+
+            const float = describeFloat(selectedItems.length === 1 ? selectedItems[0] : null);
+            if (float) return float;
+
+            const png = getRaster().canvas.toDataURL();
+            if (png === this.publishedImage) return null;
+            this.publishedImage = png;
+            return {kind: 'image', png};
         }
         /**
          * @param {?boolean} skipSnapshot True if the call to update image should not trigger saving
@@ -41,8 +127,9 @@ const UpdateImageHOC = function (WrappedComponent) {
          * @param {?Formats} formatOverride Normally the mode is used to determine the format of the image,
          * but the format used can be overridden here. In particular when converting between formats,
          * the does not accurately represent the format.
+         * @param {?object} op For a bitmap edit, the drawing action that produced it
          */
-        handleUpdateImage (skipSnapshot, formatOverride) {
+        handleUpdateImage (skipSnapshot, formatOverride, op) {
             if (isImportingImage()) {
                 log.warn('ignoring image update: still importing.');
                 return;
@@ -51,7 +138,7 @@ const UpdateImageHOC = function (WrappedComponent) {
             const actualFormat = formatOverride ? formatOverride :
                 BitmapModes[this.props.mode] ? Formats.BITMAP : Formats.VECTOR;
             if (isBitmap(actualFormat)) {
-                this.handleUpdateBitmap(skipSnapshot);
+                this.handleUpdateBitmap(skipSnapshot, op);
             } else if (isVector(actualFormat)) {
                 this.handleUpdateVector(skipSnapshot);
             }
@@ -59,7 +146,7 @@ const UpdateImageHOC = function (WrappedComponent) {
             setWorkspaceBounds();
             this.props.updateViewBounds(paper.view.matrix);
         }
-        handleUpdateBitmap (skipSnapshot) {
+        handleUpdateBitmap (skipSnapshot, op) {
             if (!getRaster().loaded) {
                 // In general, callers of updateImage should wait for getRaster().loaded = true before
                 // calling updateImage.
@@ -85,19 +172,13 @@ const UpdateImageHOC = function (WrappedComponent) {
                         log.warn('Bitmap layer should be loaded before calling updateImage.');
                         return;
                     }
-                    commitSelectionToBitmap(item, plasteredRaster);
-                } else if (item instanceof paper.Shape && item.type === 'rectangle') {
-                    commitRectToBitmap(item, plasteredRaster);
-                } else if (item instanceof paper.Shape && item.type === 'ellipse') {
-                    commitOvalToBitmap(item, plasteredRaster);
-                } else if (item instanceof paper.PointText) {
-                    const bounds = item.drawnBounds;
-                    const textRaster = item.rasterize(72, false /* insert */, bounds);
-                    plasteredRaster.drawImage(
-                        textRaster.canvas,
-                        new paper.Point(Math.floor(bounds.x), Math.floor(bounds.y))
-                    );
                 }
+                commitItemToBitmap(item, plasteredRaster);
+            }
+
+            for (const float of remoteFloats()) {
+                if (float instanceof paper.Raster) drawRasterInto(float, plasteredRaster);
+                else commitItemToBitmap(float, plasteredRaster);
             }
             const rect = getHitBounds(plasteredRaster);
 
@@ -109,12 +190,14 @@ const UpdateImageHOC = function (WrappedComponent) {
             }
 
             const imageData = plasteredRaster.getImageData(rect);
+            const action = this.describeBitmapEdit(op, selectedItems);
 
             this.props.onUpdateImage(
                 false /* isVector */,
                 imageData,
                 (ART_BOARD_WIDTH / 2) - rect.x,
-                (ART_BOARD_HEIGHT / 2) - rect.y);
+                (ART_BOARD_HEIGHT / 2) - rect.y,
+                action ? {op: action} : null);
 
             if (!skipSnapshot) {
                 performSnapshot(this.props.undoSnapshot, Formats.BITMAP);
@@ -147,15 +230,18 @@ const UpdateImageHOC = function (WrappedComponent) {
             const centerX = bounds.width === 0 ? 0 : (SVG_ART_BOARD_WIDTH / 2) - bounds.x;
             const centerY = bounds.height === 0 ? 0 : (SVG_ART_BOARD_HEIGHT / 2) - bounds.y;
 
+            const svg = paper.project.exportSVG({
+                asString: true,
+                bounds: 'content',
+                matrix: new paper.Matrix().translate(-bounds.x, -bounds.y)
+            });
+
             this.props.onUpdateImage(
                 true /* isVector */,
-                paper.project.exportSVG({
-                    asString: true,
-                    bounds: 'content',
-                    matrix: new paper.Matrix().translate(-bounds.x, -bounds.y)
-                }),
+                svg,
                 centerX,
-                centerY);
+                centerY,
+                describeShapes(svg));
             scaleWithStrokes(paper.project.activeLayer, 2, new paper.Point());
             paper.project.activeLayer.applyMatrix = true;
 
@@ -188,6 +274,7 @@ const UpdateImageHOC = function (WrappedComponent) {
 
     UpdateImageWrapper.propTypes = {
         format: PropTypes.oneOf(Object.keys(Formats)),
+        imageId: PropTypes.string,
         mode: PropTypes.oneOf(Object.keys(Modes)).isRequired,
         onUpdateImage: PropTypes.func.isRequired,
         undoSnapshot: PropTypes.func.isRequired,

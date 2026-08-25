@@ -2,6 +2,7 @@ import paper from '@turbowarp/paper';
 import Modes from '../../lib/modes';
 import {styleShape} from '../style-path';
 import {commitOvalToBitmap} from '../bitmap';
+import {describeStamp} from '../bit-float';
 import {getRaster} from '../layer';
 import {clearSelection} from '../selection';
 import {getSquareDimensions} from '../math';
@@ -191,9 +192,11 @@ class OvalTool extends paper.Tool {
     commitOval () {
         if (!this.oval || !this.oval.isInserted()) return;
 
+        const stamp = describeStamp(this.oval);
         commitOvalToBitmap(this.oval, getRaster());
         this.oval.remove();
         this.oval = null;
+        if (stamp) this.onUpdateImage(true, null, stamp);
     }
     deactivateTool () {
         this.commitOval();

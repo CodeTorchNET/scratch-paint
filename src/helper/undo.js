@@ -4,6 +4,7 @@ import paper from '@turbowarp/paper';
 import {hideGuideLayers, showGuideLayers, getRaster} from '../helper/layer';
 import {getSelectedLeafItems} from '../helper/selection';
 import Formats, {isVector, isBitmap} from '../lib/format';
+import {requestLiveResync} from './collab-live';
 import log from '../log/log';
 
 /**
@@ -44,6 +45,7 @@ const _restore = function (entry, setSelectedItems, onUpdateImage, isBitmapMode)
             if (!raster.loaded) return;
         }
         onUpdateImage(true /* skipSnapshot */);
+        if (!isBitmapMode) requestLiveResync();
     };
 
     // Bitmap mode should have at most 1 selected item

@@ -215,10 +215,11 @@ const _deleteItemSelection = function (items, onUpdateImage) {
     if (items.length === 0) {
         return false;
     }
+    const deletedItem = items.length === 1 ? items[0] : null;
     for (let i = 0; i < items.length; i++) {
         items[i].remove();
     }
-    onUpdateImage();
+    onUpdateImage(false, null, deletedItem ? {deletedItem} : null);
     return true;
 };
 

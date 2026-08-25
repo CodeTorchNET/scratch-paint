@@ -5,6 +5,8 @@ import BoundingBoxTool from '../selection-tools/bounding-box-tool';
 import NudgeTool from '../selection-tools/nudge-tool';
 import {hoverBounds} from '../guides';
 import {getRaster} from '../layer';
+import {commitItemToBitmap} from '../bitmap';
+import {describeStamp} from '../bit-float';
 
 const getTextColor = text => {
     let color = text.fillColor;
@@ -415,15 +417,11 @@ class TextTool extends paper.Tool {
     commitText () {
         if (!this.textBox || !this.textBox.parent) return;
 
-        // @todo get crisp text https://github.com/LLK/scratch-paint/issues/508
-        const textRaster = this.textBox.rasterize(72, false /* insert */, this.textBox.drawnBounds);
+        const stamp = describeStamp(this.textBox);
+        commitItemToBitmap(this.textBox, getRaster());
         this.textBox.remove();
         this.textBox = null;
-        getRaster().drawImage(
-            textRaster.canvas,
-            new paper.Point(Math.floor(textRaster.bounds.x), Math.floor(textRaster.bounds.y))
-        );
-        this.onUpdateImage();
+        this.onUpdateImage(false, null, stamp);
     }
     deactivateTool () {
         if (this.textBox && this.textBox.content.trim() === '') {

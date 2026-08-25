@@ -37,6 +37,16 @@ class LineTool extends paper.Tool {
         this.size = Math.max(1, ~~size);
         this.tmpCanvas = getBrushMark(this.size, this.color);
     }
+    /**
+     * Draw a line somebody else made.
+     * @param {Array<number>} from [x, y] in raster coordinates
+     * @param {Array<number>} to [x, y] in raster coordinates
+     */
+    replay (from, to) {
+        this.drawTarget = getRaster();
+        this.drawLine(new paper.Point(from[0], from[1]), new paper.Point(to[0], to[1]));
+        this.drawTarget = null;
+    }
     drawLine (startPoint, endPoint) {
         const roundedUpRadius = Math.ceil(this.size / 2);
         const originalContext = this.drawTarget.getContext('2d');
@@ -106,7 +116,13 @@ class LineTool extends paper.Tool {
         this.drawTarget = getRaster();
         this.drawLine(this.startPoint, event.point);
         this.drawTarget = null;
-        this.onUpdateImage();
+        this.onUpdateImage(false, null, {
+            kind: 'line',
+            from: [this.startPoint.x, this.startPoint.y],
+            to: [event.point.x, event.point.y],
+            size: this.size,
+            color: this.color || null
+        });
 
         this.lastPoint = null;
         this.active = false;

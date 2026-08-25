@@ -16,6 +16,10 @@ import {
     clampViewBounds, resetZoom, setWorkspaceBounds, zoomToFit, resizeCrosshair
 } from '../helper/view';
 import {ensureClockwise, scaleWithStrokes} from '../helper/math';
+import {setLiveImporter} from '../helper/collab-live';
+import {clearRemoteGhosts} from '../helper/vector-ghost';
+import {clearRemoteFloats} from '../helper/bit-replay';
+import {mountCursorLayer, unmountCursorLayer} from '../helper/collab-cursors';
 import {clearHoveredItem} from '../reducers/hover';
 import {clearPasteOffset} from '../reducers/clipboard';
 import {changeFormat} from '../reducers/format';
@@ -32,6 +36,9 @@ class PaperCanvas extends React.Component {
             'clearQueuedImport',
             'setCanvas',
             'importSvg',
+            'importLive',
+            'handleGestureStart',
+            'handleGestureEnd',
             'initializeSvg',
             'maybeZoomToFit',
             'switchCostume',
@@ -40,6 +47,8 @@ class PaperCanvas extends React.Component {
         ]);
     }
     componentDidMount () {
+        this.gestureActive = false;
+        this.pendingLive = null;
         paper.setup(this.canvas);
         paper.view.on('resize', this.onViewResize);
         resetZoom();
@@ -67,12 +76,23 @@ class PaperCanvas extends React.Component {
         updateTheme(this.props.theme);
         this.importImage(
             this.props.imageFormat, this.props.image, this.props.rotationCenterX, this.props.rotationCenterY);
+        setLiveImporter(this.importLive);
+        mountCursorLayer(this.canvas);
+        for (const event of ['pointerdown', 'mousedown', 'touchstart']) {
+            this.canvas.addEventListener(event, this.handleGestureStart);
+        }
+        for (const event of ['pointerup', 'mouseup', 'touchend', 'touchcancel', 'pointercancel']) {
+            window.addEventListener(event, this.handleGestureEnd);
+        }
     }
     componentWillReceiveProps (newProps) {
         if (this.props.imageId !== newProps.imageId) {
             this.switchCostume(newProps.imageFormat, newProps.image,
                 newProps.rotationCenterX, newProps.rotationCenterY,
                 this.props.zoomLevelId, newProps.zoomLevelId);
+        } else if (this.props.imageFormat !== newProps.imageFormat) {
+            this.importImage(newProps.imageFormat, newProps.image,
+                newProps.rotationCenterX, newProps.rotationCenterY);
         }
         if (this.props.format !== newProps.format) {
             this.recalibrateSize();
@@ -83,12 +103,38 @@ class PaperCanvas extends React.Component {
         }
     }
     componentWillUnmount () {
+        setLiveImporter(null);
+        clearRemoteFloats();
+        clearRemoteGhosts();
+        unmountCursorLayer();
+        this.pendingLive = null;
+        if (this.canvas) {
+            for (const event of ['pointerdown', 'mousedown', 'touchstart']) {
+                this.canvas.removeEventListener(event, this.handleGestureStart);
+            }
+        }
+        for (const event of ['pointerup', 'mouseup', 'touchend', 'touchcancel', 'pointercancel']) {
+            window.removeEventListener(event, this.handleGestureEnd);
+        }
         this.clearQueuedImport();
         // shouldZoomToFit means the zoom level hasn't been initialized yet
         if (!this.shouldZoomToFit) {
             this.props.saveZoomLevel();
         }
         paper.remove();
+    }
+    handleGestureStart () {
+        this.gestureActive = true;
+    }
+    handleGestureEnd () {
+        this.gestureActive = false;
+        const queued = this.pendingLive;
+        if (!queued) return;
+        this.pendingLive = null;
+        setTimeout(() => {
+            if (this.gestureActive || this.pendingLive) return;
+            this.importLive(queued.svg, queued.rotationCenterX, queued.rotationCenterY, queued.ids);
+        }, 0);
     }
     clearQueuedImport () {
         if (this.queuedImport) {
@@ -117,6 +163,8 @@ class PaperCanvas extends React.Component {
         this.props.clearSelectedItems();
         this.props.clearHoveredItem();
         this.props.clearPasteOffset();
+        clearRemoteFloats();
+        clearRemoteGhosts();
         this.importImage(format, image, rotationCenterX, rotationCenterY);
     }
     clearPaperCanvas () {
@@ -202,7 +250,17 @@ class PaperCanvas extends React.Component {
         setWorkspaceBounds();
         this.props.updateViewBounds(paper.view.matrix);
     }
-    importSvg (svg, rotationCenterX, rotationCenterY) {
+    /*
+     * Draw a costume somebody else changed into this canvas.
+     */
+    importLive (svg, rotationCenterX, rotationCenterY, ids) {
+        if (this.gestureActive) {
+            this.pendingLive = {svg, rotationCenterX, rotationCenterY, ids};
+            return;
+        }
+        this.importSvg(svg, rotationCenterX, rotationCenterY, {live: true, ids});
+    }
+    importSvg (svg, rotationCenterX, rotationCenterY, liveOptions) {
         setImportingImage(true);
 
         const paperCanvas = this;
@@ -248,12 +306,13 @@ class PaperCanvas extends React.Component {
                 // positioned incorrectly
                 paperCanvas.queuedImport = paperCanvas.recalibrateSize(() => {
                     paperCanvas.props.updateViewBounds(paper.view.matrix);
-                    paperCanvas.initializeSvg(item, rotationCenterX, rotationCenterY, viewBox);
+                    paperCanvas.initializeSvg(item, rotationCenterX, rotationCenterY, viewBox,
+                        liveOptions);
                 });
             }
         });
     }
-    initializeSvg (item, rotationCenterX, rotationCenterY, viewBox) {
+    initializeSvg (item, rotationCenterX, rotationCenterY, viewBox, liveOptions) {
         setImportingImage(false);
         this.clearPaperCanvas();
 
@@ -315,8 +374,22 @@ class PaperCanvas extends React.Component {
             ungroupItems([item]);
         }
 
-        performSnapshot(this.props.undoSnapshot, Formats.VECTOR_SKIP_CONVERT);
-        this.maybeZoomToFit();
+        if (liveOptions && liveOptions.live) {
+            this.stampCollabIds(liveOptions.ids);
+        } else {
+            performSnapshot(this.props.undoSnapshot, Formats.VECTOR_SKIP_CONVERT);
+            this.maybeZoomToFit();
+        }
+    }
+
+    stampCollabIds (ids) {
+        if (!ids) return;
+        const items = paper.project.activeLayer.children.filter(child =>
+            !(typeof child.isClipMask === 'function' && child.isClipMask()));
+        for (let index = 0; index < items.length; index++) {
+            if (!items[index].data) items[index].data = {};
+            items[index].data.collabId = ids[index] || null;
+        }
     }
     onViewResize () {
         setWorkspaceBounds(true /* clipEmpty */);

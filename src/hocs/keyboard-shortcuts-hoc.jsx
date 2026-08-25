@@ -129,6 +129,7 @@ const KeyboardShortcutsHOC = function (WrappedComponent) {
             if (isBitmap(this.props.format)) {
                 selectAllBitmap(this.props.clearSelectedItems);
                 this.props.setSelectedItems(this.props.format);
+                this.props.onUpdateImage(true);
             } else if (this.props.mode === Modes.RESHAPE) {
                 if (selectAllSegments()) this.props.setSelectedItems(this.props.format);
             } else if (selectAllItems()) {

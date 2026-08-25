@@ -8,6 +8,8 @@ import {
     clearSelection, cloneSelection, getSelectedLeafItems, getSelectedRootItems, setItemSelection
 } from '../selection';
 import {getDragCrosshairLayer, CROSSHAIR_FULL_OPACITY} from '../layer';
+import {reportDrag} from '../collab-live';
+import {describeDrag} from '../vector-ghost';
 
 /** Snap to align selection center to rotation center within this distance */
 const SNAPPING_THRESHOLD = 4;
@@ -34,6 +36,7 @@ class MoveTool {
         this.switchToTextTool = switchToTextTool;
         this.boundsPath = null;
         this.firstDrag = false;
+        this.collabDragId = null;
     }
 
     /**
@@ -168,6 +171,15 @@ class MoveTool {
                 bounds = item.bounds;
             }
         }
+        const first = this.selectedItems[0];
+        if (first.data.origPos) {
+            const claim = describeDrag(
+                this.selectedItems, first.position.subtract(first.data.origPos), this.collabDragId);
+            if (claim) {
+                this.collabDragId = claim.dragId;
+                reportDrag(claim);
+            }
+        }
 
         if (this.firstDrag) {
             // Show the center crosshair above the selected item while dragging.
@@ -203,6 +215,10 @@ class MoveTool {
     }
     onMouseUp () {
         this.firstDrag = false;
+        if (this.collabDragId) {
+            reportDrag(null);
+            this.collabDragId = null;
+        }
         let moved = false;
         // resetting the items origin point for the next usage
         for (const item of this.selectedItems) {

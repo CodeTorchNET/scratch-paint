@@ -30,6 +30,50 @@ class BrushTool extends paper.Tool {
         this.drawTarget = null;
         this.maskTarget = null;
         this.maskBrush = null;
+        this.strokePoints = [];
+    }
+    beginStroke () {
+        if (this.isEraser) {
+            this.drawTarget = getRaster();
+            return;
+        }
+        const drawCanvas = createCanvas();
+        this.drawTarget = new paper.Raster(drawCanvas);
+        this.drawTarget.parent = getGuideLayer();
+        this.drawTarget.guide = true;
+        this.drawTarget.locked = true;
+        this.drawTarget.position = getRaster().position;
+
+        if (this.color && doesColorRequireMask(this.color)) {
+            this.maskTarget = createCanvas().getContext('2d');
+            this.maskBrush = getBrushMark(this.size, 'black', false);
+        }
+    }
+    endStroke () {
+        if (!this.isEraser && this.drawTarget) {
+            getRaster().drawImage(this.drawTarget.canvas, new paper.Point(0, 0));
+            this.drawTarget.remove();
+        }
+        this.drawTarget = null;
+        this.maskTarget = null;
+        this.maskBrush = null;
+    }
+    /**
+     * Draw a stroke somebody else made.
+     *
+     * @param {Array<Array<number>>} points the gesture, as [x, y] pairs in raster coordinates
+     */
+    replay (points) {
+        if (!points || !points.length) return;
+        this.beginStroke();
+        let previous = new paper.Point(points[0][0], points[0][1]);
+        this.drawNextLine(previous, previous);
+        for (let index = 1; index < points.length; index++) {
+            const next = new paper.Point(points[index][0], points[index][1]);
+            this.drawNextLine(previous, next);
+            previous = next;
+        }
+        this.endStroke();
     }
     setColor (color) {
         this.color = color;
@@ -114,23 +158,10 @@ class BrushTool extends paper.Tool {
             this.cursorPreview.remove();
         }
 
-        if (this.isEraser) {
-            this.drawTarget = getRaster();
-        } else {
-            const drawCanvas = createCanvas();
-            this.drawTarget = new paper.Raster(drawCanvas);
-            this.drawTarget.parent = getGuideLayer();
-            this.drawTarget.guide = true;
-            this.drawTarget.locked = true;
-            this.drawTarget.position = getRaster().position;
-
-            if (this.color && doesColorRequireMask(this.color)) {
-                this.maskTarget = createCanvas().getContext('2d');
-                this.maskBrush = getBrushMark(this.size, 'black', false);
-            }
-        }
+        this.beginStroke();
 
         const point = event.point;
+        this.strokePoints = [[point.x, point.y]];
         this.drawNextLine(point, point);
         this.lastPoint = point;
     }
@@ -138,6 +169,7 @@ class BrushTool extends paper.Tool {
         if (event.event.button > 0 || !this.active) return; // only first mouse button
 
         const point = this.constrainPoint(event.point, this.lastPoint, event.modifiers);
+        this.strokePoints.push([point.x, point.y]);
         this.drawNextLine(this.lastPoint, point);
         this.lastPoint = point;
     }
@@ -145,15 +177,16 @@ class BrushTool extends paper.Tool {
         if (event.event.button > 0 || !this.active) return; // only first mouse button
 
         const point = this.constrainPoint(event.point, this.lastPoint, event.modifiers);
+        this.strokePoints.push([point.x, point.y]);
         this.drawNextLine(this.lastPoint, point);
-        if (!this.isEraser) {
-            getRaster().drawImage(this.drawTarget.canvas, new paper.Point(0, 0));
-            this.drawTarget.remove();
-        }
-        this.drawTarget = null;
-        this.maskTarget = null;
-        this.maskBrush = null;
-        this.onUpdateImage();
+        this.endStroke();
+        this.onUpdateImage(false, null, {
+            kind: this.isEraser ? 'erase' : 'brush',
+            points: this.strokePoints,
+            size: this.size,
+            color: this.color || null
+        });
+        this.strokePoints = [];
 
         this.lastPoint = null;
         this.active = false;

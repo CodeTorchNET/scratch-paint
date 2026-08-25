@@ -2,6 +2,7 @@ import paper from '@turbowarp/paper';
 import Modes from '../../lib/modes';
 import {styleShape} from '../../helper/style-path';
 import {commitRectToBitmap} from '../bitmap';
+import {describeStamp} from '../bit-float';
 import {getRaster} from '../layer';
 import {clearSelection} from '../selection';
 import {getSquareDimensions} from '../math';
@@ -186,10 +187,12 @@ class RectTool extends paper.Tool {
     commitRect () {
         if (!this.rect || !this.rect.isInserted()) return;
 
+        const stamp = describeStamp(this.rect);
         commitRectToBitmap(this.rect, getRaster());
 
         this.rect.remove();
         this.rect = null;
+        if (stamp) this.onUpdateImage(true, null, stamp);
     }
     deactivateTool () {
         this.commitRect();
