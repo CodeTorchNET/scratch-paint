@@ -363,6 +363,7 @@ class TextTool extends paper.Tool {
             this.changeFont(this.textBox.font);
         }
         if (this.alignment !== this.textBox.justification) {
+            this.alignment = this.textBox.justification;
             this.changeAlignment(this.textBox.justification);
         }
         this.element.style.fontSize = `${this.textBox.fontSize}px`;

@@ -24,6 +24,7 @@ const ALLOWED_ATTRS = new Set([
     'stroke-opacity', 'opacity', 'clip-path', 'clip-rule', 'mask', 'filter',
     'font-family', 'font-size', 'font-weight', 'font-style', 'text-anchor',
     'letter-spacing', 'word-spacing', 'xml:space',
+    'dx', 'dy', 'dominant-baseline', 'alignment-baseline',
     'offset', 'stop-color', 'stop-opacity', 'gradientUnits', 'gradientTransform',
     'spreadMethod', 'patternUnits', 'patternContentUnits', 'maskUnits', 'markerWidth',
     'markerHeight', 'refX', 'refY', 'orient', 'style'
@@ -58,7 +59,7 @@ const describe = el => {
         if (described) kids.push(described);
     }
     if (kids.length) node.kids = kids;
-    if ((tag === 'text' || tag === 'tspan') && el.textContent) node.text = el.textContent;
+    if ((tag === 'text' || tag === 'tspan') && !kids.length && el.textContent) node.text = el.textContent;
     return node;
 };
 
@@ -201,7 +202,7 @@ const emit = node => {
         }
     }
     const inner = (node.kids || []).map(emit).join('');
-    const text = node.text ? escapeXml(node.text) : '';
+    const text = !inner && node.text ? escapeXml(node.text) : '';
     if (!inner && !text) return `${out}/>`;
     return `${out}>${inner}${text}</${tag}>`;
 };

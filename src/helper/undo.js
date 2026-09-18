@@ -4,7 +4,7 @@ import paper from '@turbowarp/paper';
 import {hideGuideLayers, showGuideLayers, getRaster} from '../helper/layer';
 import {getSelectedLeafItems} from '../helper/selection';
 import Formats, {isVector, isBitmap} from '../lib/format';
-import {requestLiveResync} from './collab-live';
+import {requestLiveResync, beginHistoryRestore, endHistoryRestore} from './collab-live';
 import log from '../log/log';
 
 /**
@@ -44,7 +44,12 @@ const _restore = function (entry, setSelectedItems, onUpdateImage, isBitmapMode)
         for (const raster of rastersThatNeedToLoad) {
             if (!raster.loaded) return;
         }
-        onUpdateImage(true /* skipSnapshot */);
+        beginHistoryRestore();
+        try {
+            onUpdateImage(true /* skipSnapshot */);
+        } finally {
+            endHistoryRestore();
+        }
         if (!isBitmapMode) requestLiveResync();
     };
 

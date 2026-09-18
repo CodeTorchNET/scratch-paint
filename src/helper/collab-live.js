@@ -64,6 +64,50 @@ export const setLiveResync = fn => {
     resyncer = fn;
 };
 
+/*
+ * Undo and redo put an older canvas back, and an older canvas is missing whatever partners have
+ * drawn since. The publish that follows must not read that as this person deleting it.
+ */
+let restoring = false;
+
+export const beginHistoryRestore = () => {
+    restoring = true;
+};
+
+export const endHistoryRestore = () => {
+    restoring = false;
+};
+
+/**
+ * Is the canvas being put back to an earlier state of this person's history right now?
+ *
+ * @returns {boolean} true between beginHistoryRestore and endHistoryRestore
+ */
+export const isRestoringHistory = () => restoring;
+
+/*
+ * The canvas says which drawing it is now showing.
+ */
+let stampReporter = null;
+
+/**
+ * Register who is told when a live drawing has landed on the canvas.
+ *
+ * @param {?function(object): void} fn the listener, or null to clear it
+ */
+export const setStampReporter = fn => {
+    stampReporter = fn;
+};
+
+/**
+ * Say that the drawing `applyLive` was given has been drawn and its shapes named.
+ *
+ * @param {?object} token whatever `applyLive` was handed, returned untouched
+ */
+export const reportStamp = token => {
+    if (stampReporter && token) stampReporter(token);
+};
+
 
 /*
  * Somebody else lifting a selection changes THIS picture.
@@ -109,9 +153,13 @@ export const reportDrag = claim => {
 
 /**
  * Ask for the open costume to be drawn again from the document.
+ *
+ * @returns {boolean} whether anybody was there to ask
  */
 export const requestLiveResync = () => {
-    if (resyncer) resyncer();
+    if (!resyncer) return false;
+    resyncer();
+    return true;
 };
 
 /**
@@ -128,11 +176,12 @@ export const canApplyLive = () => importer !== null;
  * @param {number} rotationCenterX the costume's centre
  * @param {number} rotationCenterY the costume's centre
  * @param {string[]} ids one shape id per item, in z-order, so the items keep their identity
+ * @param {?object} token handed back through `reportStamp` once this drawing is on the canvas
  * @returns {boolean} whether an editor was open to take it
  */
-export const applyLive = (svg, rotationCenterX, rotationCenterY, ids) => {
+export const applyLive = (svg, rotationCenterX, rotationCenterY, ids, token) => {
     if (!importer) return false;
-    importer(svg, rotationCenterX, rotationCenterY, ids);
+    importer(svg, rotationCenterX, rotationCenterY, ids, token);
     return true;
 };
 
@@ -142,6 +191,11 @@ export default {
     applyLive,
     setLiveResync,
     requestLiveResync,
+    setStampReporter,
+    reportStamp,
+    beginHistoryRestore,
+    endHistoryRestore,
+    isRestoringHistory,
     setBitmapRefresher,
     refreshBitmap,
     setShapeReporting,

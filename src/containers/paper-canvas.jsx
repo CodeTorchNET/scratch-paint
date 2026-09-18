@@ -16,7 +16,7 @@ import {
     clampViewBounds, resetZoom, setWorkspaceBounds, zoomToFit, resizeCrosshair
 } from '../helper/view';
 import {ensureClockwise, scaleWithStrokes} from '../helper/math';
-import {setLiveImporter} from '../helper/collab-live';
+import {setLiveImporter, reportStamp, requestLiveResync} from '../helper/collab-live';
 import {clearRemoteGhosts} from '../helper/vector-ghost';
 import {clearRemoteFloats} from '../helper/bit-replay';
 import {mountCursorLayer, unmountCursorLayer} from '../helper/collab-cursors';
@@ -133,7 +133,9 @@ class PaperCanvas extends React.Component {
         this.pendingLive = null;
         setTimeout(() => {
             if (this.gestureActive || this.pendingLive) return;
-            this.importLive(queued.svg, queued.rotationCenterX, queued.rotationCenterY, queued.ids);
+            if (requestLiveResync()) return;
+            this.importLive(queued.svg, queued.rotationCenterX, queued.rotationCenterY, queued.ids,
+                queued.token);
         }, 0);
     }
     clearQueuedImport () {
@@ -253,12 +255,12 @@ class PaperCanvas extends React.Component {
     /*
      * Draw a costume somebody else changed into this canvas.
      */
-    importLive (svg, rotationCenterX, rotationCenterY, ids) {
+    importLive (svg, rotationCenterX, rotationCenterY, ids, token) {
         if (this.gestureActive) {
-            this.pendingLive = {svg, rotationCenterX, rotationCenterY, ids};
+            this.pendingLive = {svg, rotationCenterX, rotationCenterY, ids, token};
             return;
         }
-        this.importSvg(svg, rotationCenterX, rotationCenterY, {live: true, ids});
+        this.importSvg(svg, rotationCenterX, rotationCenterY, {live: true, ids, token});
     }
     importSvg (svg, rotationCenterX, rotationCenterY, liveOptions) {
         setImportingImage(true);
@@ -364,21 +366,30 @@ class PaperCanvas extends React.Component {
         }
 
         paper.project.activeLayer.insertChild(0, item);
+        let ids = liveOptions && liveOptions.ids;
         if (isGroup(item)) {
             // Fixes an issue where we may export empty groups
-            for (const child of item.children) {
+            const kept = [];
+            const children = item.children.slice();
+            for (let index = 0; index < children.length; index++) {
+                const child = children[index];
                 if (isGroup(child) && child.children.length === 0) {
                     child.remove();
+                } else if (ids) {
+                    kept.push(ids[index]);
                 }
             }
+            if (ids) ids = kept;
             ungroupItems([item]);
         }
 
         if (liveOptions && liveOptions.live) {
-            this.stampCollabIds(liveOptions.ids);
+            this.stampCollabIds(ids);
+            reportStamp(liveOptions.token);
         } else {
             performSnapshot(this.props.undoSnapshot, Formats.VECTOR_SKIP_CONVERT);
             this.maybeZoomToFit();
+            requestLiveResync();
         }
     }
 
