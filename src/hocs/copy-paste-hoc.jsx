@@ -13,6 +13,7 @@ import {
     getSelectedRootItems
 } from '../helper/selection';
 import {getTrimmedRaster} from '../helper/bitmap';
+import {whenRastersLoaded} from '../helper/raster-load';
 import Formats, {isBitmap} from '../lib/format';
 import Modes from '../lib/modes';
 
@@ -114,15 +115,19 @@ const CopyPasteHOC = function (WrappedComponent) {
                 items = [group.rasterize()];
                 group.remove();
             }
+            const placed = [];
             for (const item of items) {
                 const placedItem = paper.project.getActiveLayer().addChild(item);
                 placedItem.selected = true;
                 placedItem.position.x += 10 * this.props.pasteOffset;
                 placedItem.position.y += 10 * this.props.pasteOffset;
+                placed.push(placedItem);
             }
             this.props.incrementPasteOffset();
-            this.props.setSelectedItems(this.props.format);
-            this.props.onUpdateImage();
+            whenRastersLoaded(placed, () => {
+                this.props.setSelectedItems(this.props.format);
+                this.props.onUpdateImage();
+            });
         }
         render () {
             const componentProps = omit(this.props, [

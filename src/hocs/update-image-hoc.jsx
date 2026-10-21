@@ -14,6 +14,7 @@ import {getSelectedLeafItems} from '../helper/selection';
 import {getRaster, hideGuideLayers, showGuideLayers} from '../helper/layer';
 import {commitItemToBitmap, drawRasterInto, getHitBounds} from '../helper/bitmap';
 import {performSnapshot} from '../helper/undo';
+import {unloadedRasters, whenRastersLoaded} from '../helper/raster-load';
 import {scaleWithStrokes} from '../helper/math';
 
 import {
@@ -204,6 +205,16 @@ const UpdateImageHOC = function (WrappedComponent) {
             }
         }
         handleUpdateVector (skipSnapshot) {
+            if (unloadedRasters([paper.project.activeLayer]).length > 0) {
+                if (!this.vectorUpdateWaiting) {
+                    this.vectorUpdateWaiting = true;
+                    whenRastersLoaded([paper.project.activeLayer], () => {
+                        this.vectorUpdateWaiting = false;
+                        this.handleUpdateVector(skipSnapshot);
+                    });
+                }
+                return;
+            }
             // Remove viewbox (this would make it export at MAX_WORKSPACE_BOUNDS)
             let workspaceMask;
             if (paper.project.activeLayer.clipped) {
