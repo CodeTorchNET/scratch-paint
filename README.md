@@ -19,6 +19,12 @@ For more information, see https://docs.turbowarp.org/development/getting-started
 
 CodeTorchNET/scratch-paint is licensed under the GNU General Public License version 3.0. See LICENSE for more information.
 
+This project is derived from:
+
+- [scratch-paint](https://github.com/scratchfoundation/scratch-paint), under the license below.
+- [TurboWarp's scratch-paint](https://github.com/TurboWarp/scratch-paint), licensed under the GPL v3.0.
+- [PenguinMod's paint editor](https://github.com/PenguinMod/PenguinMod-Paint), whose changes have been merged into this project, licensed under GPL v3.0.
+
 The original scratch-paint that this is based on uses the following license:
 
 ```
